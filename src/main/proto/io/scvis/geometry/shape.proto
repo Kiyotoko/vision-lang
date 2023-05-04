@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "io/scvis/geometry/vector2d.proto";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+option java_package = "io.scvis.grpc.geometry";
+message Polygon {
+	repeated Vector2D points = 1;
+	double minX = 2;
+	double minY = 3;
+	double maxX = 4;
+	double maxY = 5;
+}
+
+message Circle {
+	Vector2D center = 1;
+	double radius = 2;
+}
+

@@ -1,0 +1,12 @@
+# generated classes
+target
+*.class
+*.jar
+
+# Eclipse
+.settings/*
+*.classpath
+*.project
+
+# VS Code
+.vscode/*
