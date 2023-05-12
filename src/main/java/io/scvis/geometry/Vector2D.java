@@ -1,5 +1,7 @@
 package io.scvis.geometry;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -13,7 +15,10 @@ import io.scvis.proto.Corresponding;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
 @JsonDeserialize
-public class Vector2D implements Corresponding<io.scvis.grpc.geometry.Vector2D> {
+public class Vector2D implements Corresponding<io.scvis.grpc.geometry.Vector2D>, Serializable {
+
+	private static final long serialVersionUID = -9019588241960612260L;
+
 	public static final @Nonnull Vector2D ZERO = new Vector2D(0.0, 0.0);
 
 	/**
@@ -131,9 +136,18 @@ public class Vector2D implements Corresponding<io.scvis.grpc.geometry.Vector2D> 
 		return x == vec.x && y == vec.y;
 	}
 
+	private transient int hash;
+
+	@Override
+	public int hashCode() {
+		if (hash == 0)
+			hash = super.hashCode();
+		return hash;
+	}
+
 	@Override
 	public String toString() {
-		return "Vector [x = " + x + ", y = " + y + "]";
+		return "Vector2D [x = " + x + ", y = " + y + "]";
 	}
 
 	@Override

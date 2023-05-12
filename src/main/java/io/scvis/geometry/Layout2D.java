@@ -15,12 +15,14 @@ import com.google.errorprone.annotations.DoNotCall;
 @JsonSerialize
 @JsonDeserialize
 public class Layout2D implements Border2D, Cloneable {
+
 	@JsonProperty(value = "local", index = 5)
 	@Nonnull
 	private final Border2D local;
+
 	@JsonIgnore
 	@CheckForNull
-	private transient Border2D parent;
+	private Border2D parent;
 
 	@JsonProperty(value = "position", index = 6)
 	@Nonnull
@@ -65,7 +67,7 @@ public class Layout2D implements Border2D, Cloneable {
 	}
 
 	@JsonIgnore
-	protected transient boolean changed;
+	protected boolean changed;
 
 	@Override
 	@Nonnull

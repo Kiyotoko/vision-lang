@@ -14,7 +14,7 @@ public class FixedBoard<R, C, V> implements Board<R, C, V> {
 	private final Set<R> rows;
 	private final Set<C> columns;
 
-	private final V fields[][];
+	private final V[][] fields;
 
 	public FixedBoard(Set<R> rows, Set<C> columns) {
 		this.rowsToIndex = mapToIndex(rows);
@@ -23,7 +23,7 @@ public class FixedBoard<R, C, V> implements Board<R, C, V> {
 		this.rows = rows;
 		this.columns = columns;
 		@SuppressWarnings("unchecked")
-		V array[][] = (V[][]) new Object[rows.size()][columns.size()];
+		V[][] array = (V[][]) new Object[rows.size()][columns.size()];
 		this.fields = array;
 	}
 

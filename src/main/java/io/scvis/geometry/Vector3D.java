@@ -1,5 +1,7 @@
 package io.scvis.geometry;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -8,10 +10,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import io.scvis.proto.Corresponding;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
 @JsonDeserialize
-public class Vector3D {
+public class Vector3D implements Corresponding<io.scvis.grpc.geometry.Vector3D>, Serializable {
+
+	private static final long serialVersionUID = -4200231978633862588L;
+
 	public static final @Nonnull Vector3D ZERO = new Vector3D(0.0, 0.0, 0.0);
 
 	/**
@@ -112,7 +119,7 @@ public class Vector3D {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Vector2D))
+		if (!(obj instanceof Vector3D))
 			return false;
 		if (obj == this)
 			return true;
@@ -120,8 +127,22 @@ public class Vector3D {
 		return x == vec.x && y == vec.y && z == vec.z;
 	}
 
+	private transient int hash;
+
+	@Override
+	public int hashCode() {
+		if (hash == 0)
+			hash = super.hashCode();
+		return hash;
+	}
+
 	@Override
 	public String toString() {
-		return "Vector [x = " + x + ", y = " + y + ", z = " + z + "]";
+		return "Vector3D [x = " + x + ", y = " + y + ", z = " + z + "]";
+	}
+
+	@Override
+	public io.scvis.grpc.geometry.Vector3D associated() {
+		return io.scvis.grpc.geometry.Vector3D.newBuilder().setX(x).setY(y).setZ(z).build();
 	}
 }

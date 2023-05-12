@@ -15,8 +15,6 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 	private double acceleration = 0.0;
 	@JsonProperty(value = "velocity", index = 18)
 	private double velocity = 0.0;
-	@JsonProperty(value = "circularSpeed", index = 19)
-	private double circularSpeed = 5;
 
 	@JsonCreator
 	protected Kinetic3D(@JsonProperty("local") @Nonnull Border3D local,
@@ -38,9 +36,10 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 
 	@Nonnull
 	public Vector3D getDestination() {
-		final Vector3D destination = this.destination;
-		if (destination != null)
-			return destination;
+		// Check for nonnull
+		final Vector3D checked = this.destination;
+		if (checked != null)
+			return checked;
 		return getPosition();
 	}
 
@@ -58,9 +57,10 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 
 	@Nonnull
 	public Border3D getTarget() {
-		final Border3D target = this.target;
-		if (target != null)
-			return target;
+		// Check for nonnull
+		final Border3D checked = this.target;
+		if (checked != null)
+			return checked;
 		return this;
 	}
 
@@ -82,13 +82,5 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 
 	public void setVelocity(double velocity) {
 		this.velocity = velocity;
-	}
-
-	public double getCircularSpeed() {
-		return circularSpeed;
-	}
-
-	public void setCircularSpeed(double circularSpeed) {
-		this.circularSpeed = circularSpeed;
 	}
 }
