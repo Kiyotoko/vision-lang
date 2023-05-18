@@ -1,6 +1,6 @@
-package io.scvis.game;
+package io.scvis.proto;
 
-public interface Board<R, C, V> {
+public interface Table<R, C, V> {
 
 	V get(R row, C column);
 

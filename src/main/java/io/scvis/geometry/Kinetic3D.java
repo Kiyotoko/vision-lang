@@ -12,15 +12,15 @@ import io.scvis.proto.Identifiable;
 public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiable {
 
 	@JsonProperty(value = "acceleration", index = 17)
-	private double acceleration = 0.0;
+	private Vector3D acceleration = Vector3D.ZERO;
 	@JsonProperty(value = "velocity", index = 18)
-	private double velocity = 0.0;
+	private Vector3D velocity = Vector3D.ZERO;
 
 	@JsonCreator
 	protected Kinetic3D(@JsonProperty("local") @Nonnull Border3D local,
 			@JsonProperty("position") @Nonnull Vector3D position, @JsonProperty("rotationA") double rotationA,
-			@JsonProperty("rotationB") double rotationB, @JsonProperty("acceleration") double acceleration,
-			@JsonProperty("velocity") double velocity) {
+			@JsonProperty("rotationB") double rotationB, @JsonProperty("acceleration") Vector3D acceleration,
+			@JsonProperty("velocity") Vector3D velocity) {
 		super(local, position, rotationA, rotationB);
 		this.acceleration = acceleration;
 		this.velocity = velocity;
@@ -68,19 +68,19 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 		this.target = target;
 	}
 
-	public double getAcceleration() {
+	public Vector3D getAcceleration() {
 		return acceleration;
 	}
 
-	public void setAcceleration(double acceleration) {
+	public void setAcceleration(Vector3D acceleration) {
 		this.acceleration = acceleration;
 	}
 
-	public double getVelocity() {
+	public Vector3D getVelocity() {
 		return velocity;
 	}
 
-	public void setVelocity(double velocity) {
+	public void setVelocity(Vector3D velocity) {
 		this.velocity = velocity;
 	}
 }

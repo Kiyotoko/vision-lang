@@ -1,4 +1,4 @@
-package io.scvis.game;
+package io.scvis.proto;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class FixedBoard<R, C, V> implements Board<R, C, V> {
+public class ArrayTable<R, C, V> implements Table<R, C, V> {
 
 	private final Map<R, Integer> rowsToIndex;
 	private final Map<C, Integer> columnsToIndex;
@@ -16,7 +16,7 @@ public class FixedBoard<R, C, V> implements Board<R, C, V> {
 
 	private final V[][] fields;
 
-	public FixedBoard(Set<R> rows, Set<C> columns) {
+	public ArrayTable(Set<R> rows, Set<C> columns) {
 		this.rowsToIndex = mapToIndex(rows);
 		this.columnsToIndex = mapToIndex(columns);
 

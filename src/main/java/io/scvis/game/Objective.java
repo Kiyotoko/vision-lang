@@ -1,4 +1,4 @@
-package io.scvis.observable;
+package io.scvis.game;
 
 public class Objective {
 	private String title;

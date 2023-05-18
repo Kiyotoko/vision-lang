@@ -1,4 +1,4 @@
-package io.scvis.observable;
+package io.scvis.game;
 
 import java.util.ArrayList;
 import java.util.List;

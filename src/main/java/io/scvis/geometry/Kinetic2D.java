@@ -21,8 +21,6 @@ public abstract class Kinetic2D extends Layout2D implements Kinetic, Identifiabl
 	private Vector2D acceleration = Vector2D.ZERO;
 	@JsonProperty(value = "velocity", index = 18)
 	private Vector2D velocity = Vector2D.ZERO;
-	@JsonProperty(value = "circularSpeed", index = 19)
-	private double circularSpeed = 5;
 
 	@JsonCreator
 	public Kinetic2D(@JsonProperty("local") @Nonnull Border2D local,
@@ -87,13 +85,5 @@ public abstract class Kinetic2D extends Layout2D implements Kinetic, Identifiabl
 
 	public void setVelocity(Vector2D velocity) {
 		this.velocity = velocity;
-	}
-
-	public double getCircularSpeed() {
-		return circularSpeed;
-	}
-
-	public void setCircularSpeed(double circularSpeed) {
-		this.circularSpeed = circularSpeed;
 	}
 }

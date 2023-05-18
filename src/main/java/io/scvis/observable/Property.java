@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import io.scvis.observable.ChangeListener.ChangeEvent;
 import io.scvis.observable.InvalidationListener.InvalidationEvent;
 
-public class Property<T> implements Observable<T> {
+public class Property<T> implements ObservableValue<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Property.class);
 
@@ -81,11 +81,13 @@ public class Property<T> implements Observable<T> {
 		return listeners;
 	}
 
+	@Override
 	@Nullable
 	public T get() {
 		return value;
 	}
 
+	@Override
 	public void set(@Nullable T value) {
 		if (get() != value) {
 			fireChangeEvent(new ChangeEvent<>(this, this.value, value));

@@ -1,9 +1,9 @@
-package io.scvis.game;
+package io.scvis.proto;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class UnsizedBoard<R, C, V> implements Board<R, C, V> {
+public class HashTable<R, C, V> implements Table<R, C, V> {
 
 	private final Map<R, Map<C, V>> fields = new HashMap<>();
 
