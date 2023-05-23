@@ -11,9 +11,9 @@ package io.scvis.game;
 public interface Entity {
 
 	/**
-	 * updates the object with a time difference of deltaT time units.
+	 * Updates the object with a time difference of deltaT time units.
 	 * 
-	 * @param deltaT The time difference.
+	 * @param deltaT the elapsed time since the last update
 	 */
 	void update(double deltaT);
 }
