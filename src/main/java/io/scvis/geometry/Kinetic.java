@@ -1,6 +1,6 @@
 package io.scvis.geometry;
 
-import io.scvis.game.Entity;
+import io.scvis.entity.Entity;
 
 /**
  * The Kinetic interface represents a kinetic object in geometry that can move

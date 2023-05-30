@@ -19,8 +19,10 @@ import io.scvis.proto.Mapper;
 @JsonDeserialize
 public final class Area implements Border2D {
 	@JsonProperty("outsides")
+	@Nonnull
 	private final List<? extends Border2D> outsides;
 	@JsonProperty("insides")
+	@Nonnull
 	private final List<? extends Border2D> insides;
 
 	@JsonCreator
@@ -81,10 +83,12 @@ public final class Area implements Border2D {
 		return new Polygon(centers).centroid();
 	}
 
+	@Nonnull
 	public List<? extends Border2D> getOutsides() {
 		return outsides;
 	}
 
+	@Nonnull
 	public List<? extends Border2D> getInsides() {
 		return insides;
 	}

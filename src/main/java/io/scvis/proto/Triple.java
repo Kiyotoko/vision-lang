@@ -1,5 +1,7 @@
 package io.scvis.proto;
 
+import javax.annotation.Nullable;
+
 /**
  * A triple holds tree values, a left, a center and a right value.
  * 
@@ -12,8 +14,11 @@ package io.scvis.proto;
  * @see Pair
  */
 public class Triple<L, C, R> {
+	@Nullable
 	private L left;
+	@Nullable
 	private C center;
+	@Nullable
 	private R right;
 
 	/**
@@ -23,7 +28,7 @@ public class Triple<L, C, R> {
 	 * @param center the right value
 	 * @param right  the right value
 	 */
-	public Triple(L left, C center, R right) {
+	public Triple(@Nullable L left, @Nullable C center, @Nullable R right) {
 		this.left = left;
 		this.center = center;
 		this.right = right;
@@ -41,6 +46,7 @@ public class Triple<L, C, R> {
 	 * 
 	 * @return the left value
 	 */
+	@Nullable
 	public L getLeft() {
 		return left;
 	}
@@ -50,7 +56,7 @@ public class Triple<L, C, R> {
 	 * 
 	 * @param left the new value
 	 */
-	public void setLeft(L left) {
+	public void setLeft(@Nullable L left) {
 		this.left = left;
 	}
 
@@ -59,11 +65,12 @@ public class Triple<L, C, R> {
 	 * 
 	 * @return center the new value
 	 */
+	@Nullable
 	public C getCenter() {
 		return center;
 	}
 
-	public void setCenter(C center) {
+	public void setCenter(@Nullable C center) {
 		this.center = center;
 	}
 
@@ -72,6 +79,7 @@ public class Triple<L, C, R> {
 	 * 
 	 * @return the right value
 	 */
+	@Nullable
 	public R getRight() {
 		return right;
 	}
@@ -81,7 +89,7 @@ public class Triple<L, C, R> {
 	 * 
 	 * @param right the new right value
 	 */
-	public void setRight(R right) {
+	public void setRight(@Nullable R right) {
 		this.right = right;
 	}
 }

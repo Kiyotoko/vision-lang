@@ -6,13 +6,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ArrayTable<R, C, V> implements Table<R, C, V> {
+public class ArrayTable<R, C, V> extends AbstractTable<R, C, V> {
 
 	private final Map<R, Integer> rowsToIndex;
 	private final Map<C, Integer> columnsToIndex;
-
-	private final Set<R> rows;
-	private final Set<C> columns;
 
 	private final V[][] fields;
 
@@ -20,8 +17,8 @@ public class ArrayTable<R, C, V> implements Table<R, C, V> {
 		this.rowsToIndex = mapToIndex(rows);
 		this.columnsToIndex = mapToIndex(columns);
 
-		this.rows = rows;
-		this.columns = columns;
+		super.rows = rows;
+		super.columns = columns;
 		@SuppressWarnings("unchecked")
 		V[][] array = (V[][]) new Object[rows.size()][columns.size()];
 		this.fields = array;
@@ -33,14 +30,6 @@ public class ArrayTable<R, C, V> implements Table<R, C, V> {
 		for (int index = 0; iterator.hasNext(); index++)
 			generated.put(iterator.next(), index);
 		return generated;
-	}
-
-	public boolean containsRow(R row) {
-		return rows.contains(row);
-	}
-
-	public boolean containsColumn(C column) {
-		return columns.contains(column);
 	}
 
 	public V get(int row, int column) {
@@ -61,5 +50,12 @@ public class ArrayTable<R, C, V> implements Table<R, C, V> {
 	@Override
 	public V set(R row, C column, V value) {
 		return set(rowsToIndex.get(row), columnsToIndex.get(column), value);
+	}
+
+	@Override
+	public void clear() {
+		for (int r = 0, lenR = fields.length; r < lenR; r++)
+			for (int c = 0, lenC = fields[r].length; c < lenC; c++)
+				fields[r][c] = null;
 	}
 }

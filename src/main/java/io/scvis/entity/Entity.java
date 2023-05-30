@@ -1,4 +1,4 @@
-package io.scvis.game;
+package io.scvis.entity;
 
 /**
  * Entities are objects in a discrete simulation that can be updated over time.

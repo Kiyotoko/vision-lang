@@ -1,4 +1,6 @@
-package io.scvis.game;
+package io.scvis.entity;
+
+import javax.annotation.Nonnull;
 
 /**
  * The Children interface represents an entity that has parent-child
@@ -23,5 +25,6 @@ public interface Children extends Entity, Destroyable {
 	 *
 	 * @return the parent entity
 	 */
+	@Nonnull
 	Parent getParent();
 }

@@ -82,14 +82,19 @@ public class Property<T> implements ObservableValue<T> {
 	}
 
 	@Override
-	@Nullable
-	public T get() {
+	public Object get() {
 		return value;
 	}
 
 	@Override
-	public void set(@Nullable T value) {
-		if (get() != value) {
+	@Nullable
+	public T getValue() {
+		return value;
+	}
+
+	@Override
+	public void setValue(@Nullable T value) {
+		if (getValue() != value) {
 			fireChangeEvent(new ChangeEvent<>(this, this.value, value));
 			this.value = value;
 		}

@@ -18,15 +18,15 @@ public interface ChangeListener<T> extends EventListener {
 		@Nonnull
 		private final Property<T> property;
 		@Nullable
-		private final T o;
+		private final T oldValue;
 		@Nullable
-		private final T n;
+		private final T newValue;
 
 		public ChangeEvent(@Nonnull Property<T> property, @Nullable T o, @Nullable T n) {
 			super(property);
 			this.property = property;
-			this.o = o;
-			this.n = n;
+			this.oldValue = o;
+			this.newValue = n;
 		}
 
 		@Nonnull
@@ -36,17 +36,17 @@ public interface ChangeListener<T> extends EventListener {
 
 		@Nullable
 		public T getOld() {
-			return o;
+			return oldValue;
 		}
 
 		@Nullable
 		public T getNew() {
-			return n;
+			return newValue;
 		}
 
 		@Override
 		public String toString() {
-			return property + " changed from " + o + " to " + n;
+			return property + " changed from " + oldValue + " to " + newValue;
 		}
 	}
 }

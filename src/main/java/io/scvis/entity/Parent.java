@@ -1,4 +1,4 @@
-package io.scvis.game;
+package io.scvis.entity;
 
 import java.util.List;
 

@@ -198,7 +198,7 @@ public class Vector3D implements Corresponding<io.scvis.grpc.geometry.Vector3D>,
 	 * @return the magnitude of this vector
 	 */
 	public double magnitude() {
-		return Math.sqrt(Math.sqrt(x * x + y * y) + z * z);
+		return Math.sqrt(x * x + y * y + z * z);
 	}
 
 	/**

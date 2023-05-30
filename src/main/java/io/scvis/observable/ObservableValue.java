@@ -1,8 +1,5 @@
 package io.scvis.observable;
 
-public interface ObservableValue<T> extends Observable<T> {
+public interface ObservableValue<T> extends WrappedValue<T>, Observable<T> {
 
-	T get();
-
-	void set(T value);
 }

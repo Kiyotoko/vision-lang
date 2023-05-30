@@ -233,16 +233,15 @@ public abstract class Shape implements Border2D {
 		}
 
 		public Rectangle(double width, double height) {
-			super(new ArrayList<>(
-					List.of(new Vector2D(0, 0), new Vector2D(width, 0), new Vector2D(width, height), new Vector2D(0, height))),
-					0, 0, width, height);
+			super(new ArrayList<>(List.of(new Vector2D(0, 0), new Vector2D(width, 0), new Vector2D(width, height),
+					new Vector2D(0, height))), 0, 0, width, height);
 			this.width = width;
 			this.height = height;
 		}
 
 		public Rectangle(double startX, double startY, double endX, double endY) {
-			super(new ArrayList<>(List.of(new Vector2D(startX, startY), new Vector2D(endX, startY), new Vector2D(endX, endY),
-					new Vector2D(startX, endY))), startX, startY, endX, endY);
+			super(new ArrayList<>(List.of(new Vector2D(startX, startY), new Vector2D(endX, startY),
+					new Vector2D(endX, endY), new Vector2D(startX, endY))), startX, startY, endX, endY);
 			this.width = endX - startX;
 			this.height = endY - startY;
 		}

@@ -1,5 +1,7 @@
 package io.scvis.proto;
 
+import javax.annotation.Nullable;
+
 /**
  * A pair holds two values, a left and a right value.
  * 
@@ -11,7 +13,9 @@ package io.scvis.proto;
  * @see Triple
  */
 public class Pair<L, R> {
+	@Nullable
 	private L left;
+	@Nullable
 	private R right;
 
 	/**
@@ -20,7 +24,7 @@ public class Pair<L, R> {
 	 * @param left  the new left value
 	 * @param right the new right value
 	 */
-	public Pair(L left, R right) {
+	public Pair(@Nullable L left, @Nullable R right) {
 		this.left = left;
 		this.right = right;
 	}
@@ -37,6 +41,7 @@ public class Pair<L, R> {
 	 * 
 	 * @return the left value
 	 */
+	@Nullable
 	public L getLeft() {
 		return left;
 	}
@@ -46,7 +51,7 @@ public class Pair<L, R> {
 	 * 
 	 * @param left the new value
 	 */
-	public void setLeft(L left) {
+	public void setLeft(@Nullable L left) {
 		this.left = left;
 	}
 
@@ -55,6 +60,7 @@ public class Pair<L, R> {
 	 * 
 	 * @return the right value
 	 */
+	@Nullable
 	public R getRight() {
 		return right;
 	}
@@ -64,7 +70,7 @@ public class Pair<L, R> {
 	 * 
 	 * @param right the new right value
 	 */
-	public void setRight(R right) {
+	public void setRight(@Nullable R right) {
 		this.right = right;
 	}
 }
