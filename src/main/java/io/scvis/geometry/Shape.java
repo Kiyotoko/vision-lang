@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import io.scvis.proto.Corresponding;
-
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
 @JsonDeserialize
@@ -45,7 +43,7 @@ public abstract class Shape implements Border2D {
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 	@JsonSerialize
 	@JsonDeserialize
-	public static class Polygon extends Shape implements Corresponding<io.scvis.grpc.geometry.Polygon> {
+	public static class Polygon extends Shape {
 		@JsonProperty("points")
 		@Nonnull
 		private final List<Vector2D> points;
@@ -201,11 +199,6 @@ public abstract class Shape implements Border2D {
 			return "Polygon [points = " + points + ", maxX = " + maxX + ", maxY = " + maxY + ", minX = " + minX
 					+ ", minY = " + minY + "]";
 		}
-
-		@Override
-		public io.scvis.grpc.geometry.Polygon associated() {
-			return io.scvis.grpc.geometry.Polygon.newBuilder().addAllPoints(Corresponding.transform(points)).build();
-		}
 	}
 
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -292,7 +285,7 @@ public abstract class Shape implements Border2D {
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 	@JsonSerialize
 	@JsonDeserialize
-	public static class Circle extends Shape implements Corresponding<io.scvis.grpc.geometry.Circle> {
+	public static class Circle extends Shape {
 		@JsonProperty("radius")
 		private final double radius;
 
@@ -347,12 +340,6 @@ public abstract class Shape implements Border2D {
 		@Override
 		public String toString() {
 			return "Circle [center = " + center + ", radius = " + radius + "]";
-		}
-
-		@Override
-		public io.scvis.grpc.geometry.Circle associated() {
-			return io.scvis.grpc.geometry.Circle.newBuilder().setCenter(Corresponding.transform(center))
-					.setRadius(radius).build();
 		}
 	}
 }

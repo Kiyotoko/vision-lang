@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import io.scvis.proto.Corresponding;
-
 /**
  * The Vector2D class represents a 2-dimensional vector in geometry.
  * 
@@ -20,7 +18,7 @@ import io.scvis.proto.Corresponding;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
 @JsonDeserialize
-public class Vector2D implements Corresponding<io.scvis.grpc.geometry.Vector2D>, Serializable {
+public class Vector2D implements Serializable {
 
 	private static final long serialVersionUID = -9019588241960612260L;
 
@@ -283,10 +281,5 @@ public class Vector2D implements Corresponding<io.scvis.grpc.geometry.Vector2D>,
 	@Override
 	public String toString() {
 		return "Vector2D [x = " + x + ", y = " + y + "]";
-	}
-
-	@Override
-	public io.scvis.grpc.geometry.Vector2D associated() {
-		return io.scvis.grpc.geometry.Vector2D.newBuilder().setX(x).setY(y).build();
 	}
 }

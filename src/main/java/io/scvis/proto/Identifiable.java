@@ -1,9 +1,6 @@
 package io.scvis.proto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.protobuf.Message;
-
-import io.scvis.proto.Corresponding.ExtendableCorresponding;
 
 /**
  * The Identifiable interface represents an object that can be identified with a
@@ -11,7 +8,7 @@ import io.scvis.proto.Corresponding.ExtendableCorresponding;
  * 
  * @author karlz
  */
-public interface Identifiable extends ExtendableCorresponding {
+public interface Identifiable {
 	/**
 	 * Retrieves the type of the object.
 	 *
@@ -30,15 +27,5 @@ public interface Identifiable extends ExtendableCorresponding {
 	@JsonIgnore
 	default String getId() {
 		return Integer.toHexString(hashCode());
-	}
-
-	/**
-	 * Returns the associated Message object.
-	 *
-	 * @return the associated Message object
-	 */
-	@Override
-	default Message associated() {
-		return io.scvis.grpc.proto.Identifiable.newBuilder().setId(getId()).setType(getType()).build();
 	}
 }

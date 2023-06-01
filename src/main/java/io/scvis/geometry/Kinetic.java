@@ -1,5 +1,7 @@
 package io.scvis.geometry;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
 import io.scvis.entity.Entity;
 
 /**
@@ -16,6 +18,7 @@ public interface Kinetic extends Entity {
 	 *
 	 * @param deltaT the time interval for acceleration
 	 */
+	@OverridingMethodsMustInvokeSuper
 	@Override
 	default void update(double deltaT) {
 		accelerate(deltaT);

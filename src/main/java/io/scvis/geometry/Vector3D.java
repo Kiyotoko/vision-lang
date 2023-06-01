@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import io.scvis.proto.Corresponding;
-
 /**
  * The Vector3D class represents a 3-dimensional vector in geometry.
  * 
@@ -20,7 +18,7 @@ import io.scvis.proto.Corresponding;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
 @JsonDeserialize
-public class Vector3D implements Corresponding<io.scvis.grpc.geometry.Vector3D>, Serializable {
+public class Vector3D implements Serializable {
 
 	private static final long serialVersionUID = -4200231978633862588L;
 
@@ -250,10 +248,5 @@ public class Vector3D implements Corresponding<io.scvis.grpc.geometry.Vector3D>,
 	@Override
 	public String toString() {
 		return "Vector3D [x = " + x + ", y = " + y + ", z = " + z + "]";
-	}
-
-	@Override
-	public io.scvis.grpc.geometry.Vector3D associated() {
-		return io.scvis.grpc.geometry.Vector3D.newBuilder().setX(x).setY(y).setZ(z).build();
 	}
 }

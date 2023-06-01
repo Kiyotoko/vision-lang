@@ -2,8 +2,6 @@ package io.scvis.proto;
 
 import java.util.Collection;
 
-import com.google.protobuf.Message;
-
 /**
  * The Corresponding interface represents an object that can provide an
  * associated value of type T.
@@ -18,7 +16,7 @@ public interface Corresponding<T> {
 	 */
 	T associated();
 
-	public static interface ExtendableCorresponding extends Corresponding<Message> {
+	public static interface ExtendableCorresponding extends Corresponding<Object> {
 
 	}
 

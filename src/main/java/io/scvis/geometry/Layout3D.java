@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.errorprone.annotations.DoNotCall;
 
 public class Layout3D implements Border3D, Cloneable {
 	@JsonProperty(value = "local", index = 5)
@@ -83,7 +82,6 @@ public class Layout3D implements Border3D, Cloneable {
 	}
 
 	@Override
-	@DoNotCall
 	@Nonnull
 	public Border3D rotate(@Nonnull Vector3D center, double a, double b) {
 		throw new UnsupportedOperationException();

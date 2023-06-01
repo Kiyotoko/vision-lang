@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.errorprone.annotations.DoNotCall;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
@@ -86,7 +85,6 @@ public class Layout2D implements Border2D, Cloneable {
 	}
 
 	@Override
-	@DoNotCall
 	@Nonnull
 	public Border2D rotate(@Nonnull Vector2D center, double a) {
 		throw new UnsupportedOperationException();
