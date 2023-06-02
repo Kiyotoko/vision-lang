@@ -1,5 +1,6 @@
 package io.scvis.proto;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -8,18 +9,21 @@ import javax.annotation.Nullable;
 
 public abstract class AbstractTable<R, C, V> implements Table<R, C, V> {
 
-	protected Set<R> rows;
-	protected Set<C> columns;
+	@Nonnull
+	private final Set<R> rows = new HashSet<>();
+
+	@Nonnull
+	private final Set<C> columns = new HashSet<>();
 
 	@Nonnull
 	@Override
-	public Iterable<C> getColumns() {
+	public Set<C> getColumns() {
 		return columns;
 	}
 
 	@Nonnull
 	@Override
-	public Iterable<R> getRows() {
+	public Set<R> getRows() {
 		return rows;
 	}
 
@@ -48,6 +52,11 @@ public abstract class AbstractTable<R, C, V> implements Table<R, C, V> {
 	@Override
 	public boolean containsColumn(Object column) {
 		return columns.contains(column);
+	}
+
+	@Override
+	public int size() {
+		return rows.size() * columns.size();
 	}
 
 	public class TableCell implements Cell<R, C, V> {

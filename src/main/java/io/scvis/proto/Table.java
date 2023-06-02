@@ -1,5 +1,7 @@
 package io.scvis.proto;
 
+import java.util.Set;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -12,10 +14,10 @@ public interface Table<R, C, V> {
 	V set(@Nonnull R row, @Nonnull C column, @Nullable V value);
 
 	@Nonnull
-	Iterable<R> getRows();
+	Set<R> getRows();
 
 	@Nonnull
-	Iterable<C> getColumns();
+	Set<C> getColumns();
 
 	@Nonnull
 	Iterable<Cell<R, C, V>> getCells();
@@ -29,6 +31,8 @@ public interface Table<R, C, V> {
 	boolean containsRow(Object row);
 
 	boolean containsColumn(Object column);
+
+	int size();
 
 	void clear();
 

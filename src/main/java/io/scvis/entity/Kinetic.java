@@ -1,12 +1,10 @@
-package io.scvis.geometry;
+package io.scvis.entity;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import io.scvis.entity.Entity;
-
 /**
- * The Kinetic interface represents a kinetic object in geometry that can move
- * and be updated over time.
+ * The Kinetic interface represents a kinetic object that can move, velocitate
+ * and accelerate.
  * 
  * @author karlz
  */

@@ -17,8 +17,9 @@ public class ArrayTable<R, C, V> extends AbstractTable<R, C, V> {
 		this.rowsToIndex = mapToIndex(rows);
 		this.columnsToIndex = mapToIndex(columns);
 
-		super.rows = rows;
-		super.columns = columns;
+		getRows().addAll(rows);
+		getColumns().addAll(columns);
+
 		@SuppressWarnings("unchecked")
 		V[][] array = (V[][]) new Object[rows.size()][columns.size()];
 		this.fields = array;

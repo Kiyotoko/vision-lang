@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.scvis.entity.Kinetic;
 import io.scvis.proto.Identifiable;
 
 public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiable {
