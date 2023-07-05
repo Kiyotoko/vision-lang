@@ -1,7 +1,5 @@
 package io.scvis.proto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * The Identifiable interface represents an object that can be identified with a
  * id and type.
@@ -14,7 +12,6 @@ public interface Identifiable {
 	 *
 	 * @return the type as a string
 	 */
-	@JsonIgnore
 	default String getType() {
 		return getClass().getSimpleName();
 	}
@@ -24,7 +21,6 @@ public interface Identifiable {
 	 *
 	 * @return the ID as a hexadecimal string
 	 */
-	@JsonIgnore
 	default String getId() {
 		return Integer.toHexString(hashCode());
 	}

@@ -1,18 +1,9 @@
 package io.scvis.geometry;
 
+import java.io.Serializable;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import io.scvis.geometry.Shape.Circle;
-import io.scvis.geometry.Shape.Polygon;
-import io.scvis.geometry.Shape.Rectangle;
 
 /**
  * The Border2D interface represents a 2D border or shape in geometry. It
@@ -21,14 +12,7 @@ import io.scvis.geometry.Shape.Rectangle;
  * 
  * @author karlz
  */
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({ @Type(value = Polygon.class, name = "Polygon"), @Type(value = Rectangle.class, name = "Rectangle"),
-		@Type(value = Circle.class, name = "Circle"), @Type(value = Area.class, name = "Area"),
-		@Type(value = Kinetic2D.class, name = "Kinetic") })
-@JsonSerialize
-@JsonDeserialize
-public interface Border2D {
+public interface Border2D extends Serializable {
 	/**
 	 * Checks if the specified point is contained within the border.
 	 *

@@ -1,31 +1,49 @@
 package io.scvis.geometry;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonSerialize
-@JsonDeserialize
+/**
+ * In mathematics and geometry, a shape refers to the form or configuration of
+ * an object or figure. It is a fundamental concept used to describe and
+ * classify objects based on their physical appearance.
+ * <p>
+ * A shape in 2D space is a flat, two-dimensional figure that is defined by its
+ * boundaries or outlines.
+ * 
+ * @author karlz
+ */
 public abstract class Shape implements Border2D {
+
+	private static final long serialVersionUID = 1430329205714811390L;
+
+	/**
+	 * Returns the zero vector. This method is used to define functional interfaces
+	 * such as Supplier.
+	 * 
+	 * <p>
+	 * <code>Shape::zero</code>
+	 *
+	 * @return the zero vector
+	 */
+	private static final Vector2D zero() {
+		return Vector2D.ZERO;
+	}
 
 	protected Vector2D center;
 
+	/**
+	 * Retrieves the center of this shape.
+	 *
+	 * @return the center vector
+	 */
 	@Nonnull
 	public Vector2D getCenter() {
 		return centroid();
 	}
 
-	@JsonIgnore
 	private transient int hash = 0;
 
 	@Override
@@ -40,26 +58,27 @@ public abstract class Shape implements Border2D {
 		return "UnknownShape [center = " + center + ", class = " + getClass() + ", hash = " + hashCode() + "]";
 	}
 
-	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-	@JsonSerialize
-	@JsonDeserialize
+	/**
+	 * Represents a polygon shape.
+	 */
 	public static class Polygon extends Shape {
-		@JsonProperty("points")
-		@Nonnull
-		private final List<Vector2D> points;
-		@JsonProperty("minX")
+
+		private static final long serialVersionUID = -3362147056076306244L;
+
+		private final @Nonnull List<Vector2D> points;
 		private final double minX;
-		@JsonProperty("minY")
 		private final double minY;
-		@JsonProperty("maxX")
 		private final double maxX;
-		@JsonProperty("maxY")
 		private final double maxY;
 
-		@JsonCreator
-		protected Polygon(@JsonProperty("points") @Nonnull List<Vector2D> points, @JsonProperty("minX") double minX,
-				@JsonProperty("minY") double minY, @JsonProperty("maxX") double maxX,
-				@JsonProperty("maxY") double maxY) {
+		/**
+		 * Creates a polygon with the given points, minX, minY, .
+		 *
+		 * @param points the points of the rectangle
+		 * @param width  the width of the rectangle
+		 * @param height the height of the rectangle
+		 */
+		protected Polygon(@Nonnull List<Vector2D> points, double minX, double minY, double maxX, double maxY) {
 			this.points = points;
 			this.minX = minX;
 			this.minY = minY;
@@ -67,15 +86,32 @@ public abstract class Shape implements Border2D {
 			this.maxY = maxY;
 		}
 
+		/**
+		 * Constructs a polygon with the specified list of points.
+		 *
+		 * @param points the points of the polygon
+		 */
 		public Polygon(@Nonnull List<Vector2D> points) {
 			this.points = points;
-			minX = pick(points, (a, b) -> (int) (a.getX() - b.getX())).getX();
-			minY = pick(points, (a, b) -> (int) (a.getY() - b.getY())).getY();
-			maxX = pick(points, (a, b) -> (int) (b.getX() - a.getX())).getX();
-			maxY = pick(points, (a, b) -> (int) (b.getY() - a.getY())).getY();
+			minX = points.stream().max((a, b) -> (int) (a.getX() - b.getX())).orElseGet(Shape::zero).getX();
+			minY = points.stream().max((a, b) -> (int) (a.getY() - b.getY())).orElseGet(Shape::zero).getY();
+			maxX = points.stream().max((a, b) -> (int) (b.getX() - a.getX())).orElseGet(Shape::zero).getX();
+			maxY = points.stream().max((a, b) -> (int) (b.getY() - a.getY())).orElseGet(Shape::zero).getY();
 		}
 
-		private static boolean contains(List<Vector2D> polygon, Vector2D vector2D) {
+		/**
+		 * Checks whether a given vector is inside or outside a simple polygon using the
+		 * Jordan test.
+		 * 
+		 * This method counts the number of intersections for a ray passing from the
+		 * exterior of the polygon to any point: If odd, it shows that the point lies
+		 * inside the polygon; if even, the point lies outside the polygon.
+		 * 
+		 * @param polygon  the list of vectors defining the polygon.
+		 * @param vector2D the vector or point to check.
+		 * @return true if the vector is inside, false otherwise.
+		 */
+		public static boolean contains(List<Vector2D> polygon, Vector2D vector2D) {
 			boolean inside = false;
 			for (int i = 0; i < polygon.size(); i++) {
 				int j = (i + 1) % polygon.size();
@@ -85,13 +121,19 @@ public abstract class Shape implements Border2D {
 			return inside;
 		}
 
-		private static boolean crosses(Vector2D a, Vector2D b, Vector2D vector2D) {
+		/**
+		 * Checks if a ray passing from the exterior of the polygon crosses a line AB of
+		 * the polygon.
+		 * 
+		 * @param a        the point a of the line.
+		 * @param b        the point b of the line.
+		 * @param vector2D the tested point.
+		 * @return true if the ray crosses the line AB
+		 */
+		public static boolean crosses(Vector2D a, Vector2D b, Vector2D vector2D) {
 			if (vector2D.getY() == a.getY() && a.getY() == b.getY())
-				if (a.getX() <= vector2D.getX() && vector2D.getX() <= b.getX()
-						|| b.getX() <= vector2D.getX() && vector2D.getX() <= a.getX())
-					return true;
-				else
-					return false;
+				return a.getX() <= vector2D.getX() && vector2D.getX() <= b.getX()
+						|| b.getX() <= vector2D.getX() && vector2D.getX() <= a.getX();
 			if (vector2D.getY() == a.getY() && vector2D.getX() == b.getX())
 				return true;
 			if (a.getY() > b.getY()) {
@@ -103,18 +145,7 @@ public abstract class Shape implements Border2D {
 				return false;
 			double x = (a.getX() - vector2D.getX()) * (b.getY() - vector2D.getY())
 					- (a.getY() - vector2D.getY()) * (b.getX() - vector2D.getX());
-			if (x < 0)
-				return false;
-			else
-				return true;
-		}
-
-		private static <T> T pick(List<T> list, Comparator<T> comparator) {
-			if (list.isEmpty())
-				return null;
-			List<T> temp = new ArrayList<>(list);
-			temp.sort(comparator);
-			return temp.get(0);
+			return (x >= 0);
 		}
 
 		@Override
@@ -131,14 +162,12 @@ public abstract class Shape implements Border2D {
 			if (border2D instanceof Polygon) {
 				Polygon poly = (Polygon) border2D;
 				for (Vector2D point : poly.getPoints())
-					if (point != null)
-						if (contains(point))
-							return true;
+					if (point != null && (contains(point)))
+						return true;
 			}
 			for (Vector2D point : getPoints())
-				if (point != null)
-					if (contains(point))
-						return true;
+				if (point != null && (contains(point)))
+					return true;
 			return false;
 		}
 
@@ -151,10 +180,10 @@ public abstract class Shape implements Border2D {
 		@Override
 		@Nonnull
 		public Polygon translate(double x, double y) {
-			List<Vector2D> points = new ArrayList<>();
+			List<Vector2D> translated = new ArrayList<>();
 			for (Vector2D point : this.points)
-				points.add(point.add(x, y));
-			return new Polygon(points);
+				translated.add(point.add(x, y));
+			return new Polygon(translated);
 		}
 
 		@Override
@@ -166,11 +195,11 @@ public abstract class Shape implements Border2D {
 		@Override
 		@Nonnull
 		public Polygon rotate(@Nonnull Vector2D center, double a) {
-			List<Vector2D> points = new ArrayList<>();
+			List<Vector2D> rotated = new ArrayList<>();
 			Vector2D centroid = center;
 			for (Vector2D point : this.points)
-				points.add(point.subtract(centroid).rotate(a).add(centroid));
-			return new Polygon(points);
+				rotated.add(point.subtract(centroid).rotate(a).add(centroid));
+			return new Polygon(rotated);
 		}
 
 		@Override
@@ -179,7 +208,8 @@ public abstract class Shape implements Border2D {
 			/* Checked */
 			final Vector2D center = this.center;
 			if (center == null) {
-				double x = 0, y = 0;
+				double x = 0;
+				double y = 0;
 				for (Vector2D vector2D : points) {
 					x += vector2D.getX();
 					y += vector2D.getY();
@@ -189,6 +219,11 @@ public abstract class Shape implements Border2D {
 			return center;
 		}
 
+		/**
+		 * Retrieves the points of the polygon.
+		 *
+		 * @return the points of the polygon
+		 */
 		@Nonnull
 		public List<Vector2D> getPoints() {
 			return points;
@@ -201,30 +236,38 @@ public abstract class Shape implements Border2D {
 		}
 	}
 
-	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-	@JsonSerialize
-	@JsonDeserialize
+	/**
+	 * Represents a rectangle shape.
+	 */
 	public static class Rectangle extends Polygon {
-		@JsonProperty("width")
+
+		private static final long serialVersionUID = 4703005267556298683L;
+
 		private final double width;
-		@JsonProperty("height")
 		private final double height;
 
-		@JsonCreator
-		protected Rectangle(@JsonProperty("points") @Nonnull List<Vector2D> points, @JsonProperty("minX") double minX,
-				@JsonProperty("minY") double minY, @JsonProperty("maxX") double maxX, @JsonProperty("maxY") double maxY,
-				@JsonProperty("width") double width, @JsonProperty("height") double height) {
-			super(points, minX, minY, maxX, maxY);
-			this.width = width;
-			this.height = height;
-		}
-
-		public Rectangle(@Nonnull List<Vector2D> points, double width, double height) {
+		/**
+		 * Creates a rectangle with the given points, width, and height.
+		 *
+		 * @param points the points of the rectangle
+		 * @param width  the width of the rectangle
+		 * @param height the height of the rectangle
+		 */
+		private Rectangle(@Nonnull List<Vector2D> points, double width, double height) {
 			super(points);
+			if (points.size() != 4)
+				throw new IllegalArgumentException("A rectangle must always have 4 points, not " + points.size());
 			this.width = width;
 			this.height = height;
 		}
 
+		/**
+		 * Creates a rectangle with the given width and height, with the bottom-left
+		 * corner at (0,0).
+		 *
+		 * @param width  the width of the rectangle
+		 * @param height the height of the rectangle
+		 */
 		public Rectangle(double width, double height) {
 			super(new ArrayList<>(List.of(new Vector2D(0, 0), new Vector2D(width, 0), new Vector2D(width, height),
 					new Vector2D(0, height))), 0, 0, width, height);
@@ -232,6 +275,14 @@ public abstract class Shape implements Border2D {
 			this.height = height;
 		}
 
+		/**
+		 * Creates a rectangle with the given starting and ending coordinates.
+		 *
+		 * @param startX the x-coordinate of the starting point
+		 * @param startY the y-coordinate of the starting point
+		 * @param endX   the x-coordinate of the ending point
+		 * @param endY   the y-coordinate of the ending point
+		 */
 		public Rectangle(double startX, double startY, double endX, double endY) {
 			super(new ArrayList<>(List.of(new Vector2D(startX, startY), new Vector2D(endX, startY),
 					new Vector2D(endX, endY), new Vector2D(startX, endY))), startX, startY, endX, endY);
@@ -268,10 +319,20 @@ public abstract class Shape implements Border2D {
 			return new Rectangle(points, width, height);
 		}
 
+		/**
+		 * Retrieves the width of the rectangle.
+		 *
+		 * @return the width of the rectangle
+		 */
 		public double getWidth() {
 			return width;
 		}
 
+		/**
+		 * Retrieves the height of the rectangle.
+		 *
+		 * @return the height of the rectangle
+		 */
 		public double getHeight() {
 			return height;
 		}
@@ -282,15 +343,22 @@ public abstract class Shape implements Border2D {
 		}
 	}
 
-	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-	@JsonSerialize
-	@JsonDeserialize
+	/**
+	 * Represents a circle shape.
+	 */
 	public static class Circle extends Shape {
-		@JsonProperty("radius")
+
+		private static final long serialVersionUID = 172519286642315942L;
+
 		private final double radius;
 
-		@JsonCreator
-		public Circle(@JsonProperty("center") @Nonnull Vector2D center, @JsonProperty("radius") double radius) {
+		/**
+		 * Creates a circle with the given center and radius.
+		 *
+		 * @param center
+		 * @param radius
+		 */
+		public Circle(@Nonnull Vector2D center, double radius) {
 			this.center = center;
 			this.radius = radius;
 		}
@@ -333,6 +401,11 @@ public abstract class Shape implements Border2D {
 			return center;
 		}
 
+		/**
+		 * Retrieves the radius of the circle.
+		 *
+		 * @return the radius of the circle.
+		 */
 		public double getRadius() {
 			return radius;
 		}

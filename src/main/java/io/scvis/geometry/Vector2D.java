@@ -4,36 +4,25 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 /**
  * The Vector2D class represents a 2-dimensional vector in geometry.
  * 
  * @author karlz
  */
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonSerialize
-@JsonDeserialize
 public class Vector2D implements Serializable {
 
 	private static final long serialVersionUID = -9019588241960612260L;
 
 	public static final @Nonnull Vector2D ZERO = new Vector2D(0.0, 0.0);
-
+	
 	/**
 	 * The x coordinate of the vector.}
 	 */
-	@JsonProperty("x")
 	private final double x;
 
 	/**
 	 * The y coordinate of the vector.}
 	 */
-	@JsonProperty("y")
 	private final double y;
 
 	/**
@@ -42,8 +31,7 @@ public class Vector2D implements Serializable {
 	 * @param x the x coordinate
 	 * @param y the y coordinate
 	 */
-	@JsonCreator
-	public Vector2D(@JsonProperty("x") double x, @JsonProperty("y") double y) {
+	public Vector2D(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}

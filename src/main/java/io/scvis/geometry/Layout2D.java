@@ -3,35 +3,32 @@ package io.scvis.geometry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+/**
+ * The Layout2D class represents a 2D layout with position and rotation.
+ * 
+ * @author karlz
+ */
+public class Layout2D implements Border2D, Positionable2D, Cloneable {
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonSerialize
-@JsonDeserialize
-public class Layout2D implements Border2D, Cloneable {
+	private static final long serialVersionUID = 7896521163278027263L;
 
-	@JsonProperty(value = "local", index = 5)
-	@Nonnull
-	private final Border2D local;
+	private final @Nonnull Border2D local;
 
-	@JsonIgnore
 	@CheckForNull
 	private Border2D parent;
 
-	@JsonProperty(value = "position", index = 6)
-	@Nonnull
-	private Vector2D position = Vector2D.ZERO;
-	@JsonProperty(value = "rotation", index = 7)
+	private @Nonnull Vector2D position;
 	private double rotation = 0;
 
-	@JsonCreator
-	public Layout2D(@JsonProperty("local") @Nonnull Border2D local,
-			@JsonProperty("position") @Nonnull Vector2D position, @JsonProperty("rotation") double rotation) {
+	/**
+	 * Constructs a Layout2D object with the specified local border, position, and
+	 * rotation.
+	 * 
+	 * @param local    The local border of the layout.
+	 * @param position The position of the layout.
+	 * @param rotation The rotation angle of the layout.
+	 */
+	public Layout2D(@Nonnull Border2D local, @Nonnull Vector2D position, double rotation) {
 		this.local = local;
 		this.position = position;
 		this.rotation = rotation;
@@ -42,10 +39,21 @@ public class Layout2D implements Border2D, Cloneable {
 		return new Layout2D(local);
 	}
 
+	/**
+	 * Constructs a Layout2D object with the specified local border.
+	 * 
+	 * @param local The local border of the layout.
+	 */
 	public Layout2D(@Nonnull Border2D local) {
 		this.local = local;
+		this.position = Vector2D.ZERO;
 	}
 
+	/**
+	 * 
+	 * Applies the transformation to the layout. Recalculates the parent border if
+	 * there are changes.
+	 */
 	public void applyTransformation() {
 		if (changed || parent == null) {
 			this.parent = local.translate(position).rotate(rotation);
@@ -65,7 +73,6 @@ public class Layout2D implements Border2D, Cloneable {
 		return parent.intersects(border2D);
 	}
 
-	@JsonIgnore
 	protected boolean changed;
 
 	@Override
@@ -97,31 +104,52 @@ public class Layout2D implements Border2D, Cloneable {
 		return parent.centroid();
 	}
 
-	@JsonIgnore
+	/**
+	 * Returns the local border of the layout.
+	 * 
+	 * @return The local border of the layout.
+	 */
 	public Border2D getBorderInLocal() {
 		return local;
 	}
 
-	@JsonIgnore
+	/**
+	 * Returns the parent border of the layout. Applies the transformation before
+	 * returning the parent border.
+	 * 
+	 * @return The parent border of the layout.
+	 */
 	public Border2D getBorderInParent() {
 		applyTransformation();
 		return parent;
 	}
 
+	@Override
 	@Nonnull
 	public Vector2D getPosition() {
 		return position;
 	}
 
+	@Override
 	public void setPosition(@Nonnull Vector2D position) {
 		this.changed = true;
 		this.position = position;
 	}
 
+	/**
+	 * Returns the rotation angle of the layout.
+	 * 
+	 * @return The rotation angle of the layout.
+	 */
 	public double getRotation() {
 		return rotation;
 	}
 
+	/**
+	 * Sets the rotation angle of the layout. Sets the changed flag to true.
+	 * 
+	 * @param rotation The rotation angle to set.
+	 */
 	public void setRotation(double rotation) {
 		this.changed = true;
 		this.rotation = rotation;

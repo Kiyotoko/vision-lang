@@ -5,36 +5,41 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import io.scvis.geometry.Shape.Polygon;
 import io.scvis.proto.Mapper;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonSerialize
-@JsonDeserialize
+/**
+ * The Area class represents a 2D area defined by a collection of borders.
+ * 
+ * @author karlz
+ * @see Border2D
+ */
 public final class Area implements Border2D {
-	@JsonProperty("outsides")
-	@Nonnull
-	private final List<? extends Border2D> outsides;
-	@JsonProperty("insides")
-	@Nonnull
-	private final List<? extends Border2D> insides;
 
-	@JsonCreator
-	public Area(@JsonProperty("outsides") List<? extends Border2D> outsides,
-			@JsonProperty("insides") List<? extends Border2D> insides) {
+	private static final long serialVersionUID = 3359561327999324550L;
+
+	private final @Nonnull List<? extends Border2D> outsides;
+	private final @Nonnull List<? extends Border2D> insides;
+
+	/**
+	 * Constructs an Area object with the given outside and inside borders.
+	 * 
+	 * @param outsides The list of outside borders.
+	 * @param insides  The list of inside borders.
+	 */
+	public Area(@Nonnull List<? extends Border2D> outsides, @Nonnull List<? extends Border2D> insides) {
 		this.outsides = outsides;
 		this.insides = insides;
 	}
 
-	public Area(Border2D border2D) {
-		outsides = List.of(border2D);
-		insides = List.of();
+	/**
+	 * Constructs an Area object with a single border.
+	 * 
+	 * @param border2D The single border of the area.
+	 */
+	public Area(@Nonnull Border2D border2D) {
+		outsides = new ArrayList<>(List.of(border2D));
+		insides = new ArrayList<>();
 	}
 
 	@Override
@@ -83,11 +88,21 @@ public final class Area implements Border2D {
 		return new Polygon(centers).centroid();
 	}
 
+	/**
+	 * Returns the list of outside borders of the area.
+	 * 
+	 * @return The list of outside borders.
+	 */
 	@Nonnull
 	public List<? extends Border2D> getOutsides() {
 		return outsides;
 	}
 
+	/**
+	 * Returns the list of inside borders of the area.
+	 * 
+	 * @return The list of inside borders.
+	 */
 	@Nonnull
 	public List<? extends Border2D> getInsides() {
 		return insides;

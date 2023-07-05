@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A mapper is a function that maps every element of a collection to their
  * associated value.
- * 
- * @author karlz
  *
  * @param <K> the input key type
  * @param <V> the generated value type
- * 
+ * @author karlz
  * @see Function
  * @see Collection
+ * @see Stream
  */
 @FunctionalInterface
 public interface Mapper<K, V> extends Function<K, V> {

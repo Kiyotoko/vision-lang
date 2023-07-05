@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 
 /**
  * The Parent interface represents an entity that updates its childrens.
+ * 
+ * @author karlz
  */
 public interface Parent extends Entity {
 

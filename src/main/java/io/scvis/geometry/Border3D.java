@@ -1,10 +1,9 @@
 package io.scvis.geometry;
 
+import java.io.Serializable;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The Border3D interface represents a 3D border or shape in geometry. It
@@ -13,9 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * 
  * @author karlz
  */
-@JsonSerialize
-@JsonDeserialize
-public interface Border3D {
+public interface Border3D extends Serializable {
 	/**
 	 * Checks if the specified point is contained within the border.
 	 *

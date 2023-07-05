@@ -7,6 +7,7 @@ import java.util.Collection;
  * associated value of type T.
  *
  * @param <T> the type of the associated value
+ * @author karlz
  */
 public interface Corresponding<T> {
 	/**

@@ -4,20 +4,11 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 /**
  * The Vector3D class represents a 3-dimensional vector in geometry.
  * 
  * @author karlz
  */
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonSerialize
-@JsonDeserialize
 public class Vector3D implements Serializable {
 
 	private static final long serialVersionUID = -4200231978633862588L;
@@ -27,19 +18,16 @@ public class Vector3D implements Serializable {
 	/**
 	 * The x coordinate of the vector.}
 	 */
-	@JsonProperty("x")
 	private final double x;
 
 	/**
 	 * The y coordinate of the vector.}
 	 */
-	@JsonProperty("y")
 	private final double y;
 
 	/**
 	 * The z coordinate of the vector.}
 	 */
-	@JsonProperty("z")
 	private final double z;
 
 	/**
@@ -49,8 +37,7 @@ public class Vector3D implements Serializable {
 	 * @param y the y coordinate
 	 * @param z the z coordinate
 	 */
-	@JsonCreator
-	public Vector3D(@JsonProperty("x") double x, @JsonProperty("y") double y, @JsonProperty("z") double z) {
+	public Vector3D(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
