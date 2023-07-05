@@ -122,8 +122,7 @@ public abstract class Kinetic3D extends Layout3D implements Kinetic, Identifiabl
 	 * 
 	 * @param acceleration The acceleration vector to set.
 	 */
-	@Nonnull
-	public void setAcceleration(Vector3D acceleration) {
+	public void setAcceleration(@Nonnull Vector3D acceleration) {
 		this.acceleration = acceleration;
 	}
 
