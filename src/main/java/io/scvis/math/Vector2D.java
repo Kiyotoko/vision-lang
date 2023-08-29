@@ -1,4 +1,4 @@
-package io.scvis.geometry;
+package io.scvis.math;
 
 import java.io.Serializable;
 
