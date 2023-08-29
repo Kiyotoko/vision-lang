@@ -19,4 +19,23 @@ class TestStochastic {
     void bernoulliCdf(double exp, double p, int n, int min, int max) {
         assertEquals(exp, Stochastic.bernoulliCdf(p, n, min, max));
     }
+
+    @ParameterizedTest
+    @CsvSource({"6, 3", "40_320, 8", "1_307_674_368_000, 15"})
+    void factorial(long exp, int val) {
+        assertEquals(exp, Stochastic.factorial(val));
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"3, 3, 2", "4, 4, 3", "3, 3, 1", "6, 4, 2"})
+    void combU(int exp, int n, int k) {
+        assertEquals(exp, Stochastic.combU(n, k));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"6, 3, 2", "20, 4, 3", "3, 3, 1", "10, 4, 2"})
+    void combA(int exp, int n, int k) {
+        assertEquals(exp, Stochastic.combA(n, k));
+    }
 }
