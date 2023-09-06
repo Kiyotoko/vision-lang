@@ -72,4 +72,12 @@ public class Matrix {
         build.append("\n]");
         return build.toString();
     }
+
+    public int getColumns() {
+        return m;
+    }
+
+    public int getRows() {
+        return n;
+    }
 }

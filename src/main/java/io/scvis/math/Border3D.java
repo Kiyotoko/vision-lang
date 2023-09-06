@@ -16,11 +16,11 @@ public interface Border3D extends Serializable {
 	/**
 	 * Checks if the specified point is contained within the border.
 	 *
-	 * @param vector3D the 3D vector representing the point
+	 * @param point3D the 3D vector representing the point
 	 * @return true if the point is contained within the border, false otherwise
 	 */
 	@CheckReturnValue
-	boolean contains(@Nonnull Vector3D vector3D);
+	boolean contains(@Nonnull Point3D point3D);
 
 	/**
 	 * Checks if the border intersects with the specified border.
@@ -52,7 +52,7 @@ public interface Border3D extends Serializable {
 	 */
 	@CheckReturnValue
 	@Nonnull
-	default Border3D translate(@Nonnull Vector3D v) {
+	default Border3D translate(@Nonnull Point3D v) {
 		return translate(v.getX(), v.getY(), v.getZ());
 	}
 
@@ -67,7 +67,7 @@ public interface Border3D extends Serializable {
 	 */
 	@CheckReturnValue
 	@Nonnull
-	Border3D rotate(@Nonnull Vector3D center, double a, double b);
+	Border3D rotate(@Nonnull Point3D center, double a, double b);
 
 	/**
 	 * Rotates the border around its centroid by the specified angles in radians.
@@ -85,9 +85,9 @@ public interface Border3D extends Serializable {
 	/**
 	 * Calculates and retrieves the centroid of the border.
 	 *
-	 * @return the centroid of the border as a Vector3D
+	 * @return the centroid of the border as a Point3D
 	 */
 	@CheckReturnValue
 	@Nonnull
-	Vector3D centroid();
+    Point3D centroid();
 }

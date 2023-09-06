@@ -2,18 +2,20 @@ package io.scvis.math;
 
 import java.io.Serializable;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
- * The Vector3D class represents a 3-dimensional vector in geometry.
+ * The Point3D class represents a 3-dimensional vector in geometry.
  * 
  * @author karlz
  */
-public class Vector3D implements Serializable {
+public class Point3D implements Serializable {
 
 	private static final long serialVersionUID = -4200231978633862588L;
 
-	public static final @Nonnull Vector3D ZERO = new Vector3D(0.0, 0.0, 0.0);
+	public static final @Nonnull Point3D ZERO = new Point3D(0.0, 0.0, 0.0);
 
 	/**
 	 * The x coordinate of the vector.}
@@ -31,13 +33,13 @@ public class Vector3D implements Serializable {
 	private final double z;
 
 	/**
-	 * Creates a Vector3D object with the given x, y and z coordinates.
+	 * Creates a Point3D object with the given x, y and z coordinates.
 	 *
 	 * @param x the x coordinate
 	 * @param y the y coordinate
 	 * @param z the z coordinate
 	 */
-	public Vector3D(double x, double y, double z) {
+	public Point3D(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -51,7 +53,8 @@ public class Vector3D implements Serializable {
 	 * @return a new vector representing the sum of this vector and the given vector
 	 */
 	@Nonnull
-	public Vector3D add(@Nonnull Vector3D v) {
+	@CheckReturnValue
+	public Point3D add(@Nonnull Point3D v) {
 		return add(v.getX(), v.getY(), v.getZ());
 	}
 
@@ -66,8 +69,9 @@ public class Vector3D implements Serializable {
 	 *         coordinates
 	 */
 	@Nonnull
-	public Vector3D add(double x, double y, double z) {
-		return new Vector3D(this.x + x, this.y + y, this.z + z);
+	@CheckReturnValue
+	public Point3D add(double x, double y, double z) {
+		return new Point3D(this.x + x, this.y + y, this.z + z);
 	}
 
 	/**
@@ -79,7 +83,8 @@ public class Vector3D implements Serializable {
 	 *         given vector
 	 */
 	@Nonnull
-	public Vector3D subtract(@Nonnull Vector3D v) {
+	@CheckReturnValue
+	public Point3D subtract(@Nonnull Point3D v) {
 		return subtract(v.getX(), v.getY(), v.getZ());
 	}
 
@@ -94,8 +99,9 @@ public class Vector3D implements Serializable {
 	 *         specified coordinates
 	 */
 	@Nonnull
-	public Vector3D subtract(double x, double y, double z) {
-		return new Vector3D(this.x - x, this.y - y, this.z - z);
+	@CheckReturnValue
+	public Point3D subtract(double x, double y, double z) {
+		return new Point3D(this.x - x, this.y - y, this.z - z);
 	}
 
 	/**
@@ -107,8 +113,9 @@ public class Vector3D implements Serializable {
 	 *         value
 	 */
 	@Nonnull
-	public Vector3D multiply(double s) {
-		return new Vector3D(x * s, y * s, z * s);
+	@CheckReturnValue
+	public Point3D multiply(double s) {
+		return new Point3D(x * s, y * s, z * s);
 	}
 
 	/**
@@ -117,7 +124,8 @@ public class Vector3D implements Serializable {
 	 * @param v the vector to calculate the distance to
 	 * @return the distance between this vector and the given vector
 	 */
-	public double distance(@Nonnull Vector3D v) {
+	@CheckReturnValue
+	public double distance(@Nonnull Point3D v) {
 		return distance(v.x, v.y, v.z);
 	}
 
@@ -129,6 +137,7 @@ public class Vector3D implements Serializable {
 	 * @param z the z-coordinate of the vector
 	 * @return the distance between this vector and the specified coordinates
 	 */
+	@CheckReturnValue
 	public double distance(double x, double y, double z) {
 		double dx = this.x - x;
 		double dy = this.x - y;
@@ -143,12 +152,13 @@ public class Vector3D implements Serializable {
 	 * @return a new vector representing the normalized version of this vector
 	 */
 	@Nonnull
-	public Vector3D normalize() {
+	@CheckReturnValue
+	public Point3D normalize() {
 		double mag = magnitude();
 		if (mag == 0.0) {
 			return ZERO;
 		}
-		return new Vector3D(x / mag, y / mag, z / mag);
+		return new Point3D(x / mag, y / mag, z / mag);
 	}
 
 	/**
@@ -159,7 +169,8 @@ public class Vector3D implements Serializable {
 	 *         given vector
 	 */
 	@Nonnull
-	public Vector3D midpoint(@Nonnull Vector3D v) {
+	@CheckReturnValue
+	public Point3D midpoint(@Nonnull Point3D v) {
 		return midpoint(v.x, v.y, v.z);
 	}
 
@@ -173,8 +184,9 @@ public class Vector3D implements Serializable {
 	 *         specified coordinates
 	 */
 	@Nonnull
-	public Vector3D midpoint(double x, double y, double z) {
-		return new Vector3D(x + (this.x - x) / 2.0, y + (this.y - y) / 2.0, z + (this.z - z) / 2);
+	@CheckReturnValue
+	public Point3D midpoint(double x, double y, double z) {
+		return new Point3D(x + (this.x - x) / 2.0, y + (this.y - y) / 2.0, z + (this.z - z) / 2);
 	}
 
 	/**
@@ -214,13 +226,20 @@ public class Vector3D implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Vector3D))
+	public boolean equals(@Nullable Object obj) {
+		if (obj == null) return false;
+		if (!(obj instanceof Point3D))
 			return false;
 		if (obj == this)
 			return true;
-		Vector3D vec = (Vector3D) obj;
+		Point3D vec = (Point3D) obj;
 		return x == vec.x && y == vec.y && z == vec.z;
+	}
+
+	@Nonnull
+	@CheckReturnValue
+	public Vector toVector() {
+		return new Vector(new double[]{x, y, z});
 	}
 
 	private transient int hash;
@@ -234,6 +253,6 @@ public class Vector3D implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Vector3D [x = " + x + ", y = " + y + ", z = " + z + "]";
+		return "Point3D [x = " + x + ", y = " + y + ", z = " + z + "]";
 	}
 }

@@ -13,7 +13,7 @@ public class Polygon implements Border2D {
 
 	private static final long serialVersionUID = -3362147056076306244L;
 
-	private final @Nonnull List<Vector2D> points;
+	private final @Nonnull List<Point2D> points;
 	private final double minX;
 	private final double minY;
 	private final double maxX;
@@ -24,7 +24,7 @@ public class Polygon implements Border2D {
 	 *
 	 * @param points the points of the polygon
 	 */
-	public Polygon(@Nonnull List<Vector2D> points) {
+	public Polygon(@Nonnull List<Point2D> points) {
 		this.points = points;
 		minX = Collections.min(points, (a, b) -> (int) (a.getX() - b.getX())).getX();
 		minY = Collections.min(points, (a, b) -> (int) (a.getY() - b.getY())).getY();
@@ -41,14 +41,14 @@ public class Polygon implements Border2D {
 	 * inside the polygon; if even, the point lies outside the polygon.
 	 *
 	 * @param polygon  the list of vectors defining the polygon.
-	 * @param vector2D the vector or point to check.
+	 * @param point2D the vector or point to check.
 	 * @return true if the vector is inside, false otherwise.
 	 */
-	public static boolean contains(@Nonnull List<Vector2D> polygon, @Nonnull Vector2D vector2D) {
+	public static boolean contains(@Nonnull List<Point2D> polygon, @Nonnull Point2D point2D) {
 		boolean inside = false;
 		for (int i = 0; i < polygon.size(); i++) {
 			int j = (i + 1) % polygon.size();
-			if (crosses(polygon.get(i), polygon.get(j), vector2D))
+			if (crosses(polygon.get(i), polygon.get(j), point2D))
 				inside = !inside;
 		}
 		return inside;
@@ -60,45 +60,45 @@ public class Polygon implements Border2D {
 	 *
 	 * @param a        the first point of the line.
 	 * @param b        the second point of the line.
-	 * @param vector2D the tested point.
+	 * @param point2D the tested point.
 	 * @return true if the ray crosses the line AB
 	 */
-	public static boolean crosses(@Nonnull Vector2D a, @Nonnull Vector2D b, Vector2D vector2D) {
-		if (vector2D.getY() == a.getY() && a.getY() == b.getY())
-			return a.getX() <= vector2D.getX() && vector2D.getX() <= b.getX()
-					|| b.getX() <= vector2D.getX() && vector2D.getX() <= a.getX();
-		if (vector2D.getY() == a.getY() && vector2D.getX() == b.getX())
+	public static boolean crosses(@Nonnull Point2D a, @Nonnull Point2D b, Point2D point2D) {
+		if (point2D.getY() == a.getY() && a.getY() == b.getY())
+			return a.getX() <= point2D.getX() && point2D.getX() <= b.getX()
+					|| b.getX() <= point2D.getX() && point2D.getX() <= a.getX();
+		if (point2D.getY() == a.getY() && point2D.getX() == b.getX())
 			return true;
 		if (a.getY() > b.getY()) {
 			var t = a;
 			a = b;
 			b = t;
 		}
-		if (vector2D.getY() <= a.getY() || vector2D.getY() > b.getY())
+		if (point2D.getY() <= a.getY() || point2D.getY() > b.getY())
 			return false;
-		double x = (a.getX() - vector2D.getX()) * (b.getY() - vector2D.getY())
-				- (a.getY() - vector2D.getY()) * (b.getX() - vector2D.getX());
+		double x = (a.getX() - point2D.getX()) * (b.getY() - point2D.getY())
+				- (a.getY() - point2D.getY()) * (b.getX() - point2D.getX());
 		return (x >= 0);
 	}
 
 	@Override
-	public boolean contains(@Nonnull Vector2D vector2D) {
-		if (vector2D.getX() < minX || vector2D.getX() > maxX)
+	public boolean contains(@Nonnull Point2D point2D) {
+		if (point2D.getX() < minX || point2D.getX() > maxX)
 			return false;
-		if (vector2D.getY() < minY || vector2D.getY() > maxY)
+		if (point2D.getY() < minY || point2D.getY() > maxY)
 			return false;
-		return contains(points, vector2D);
+		return contains(points, point2D);
 	}
 
 	@Override
 	public boolean intersects(@Nonnull Border2D border2D) {
 		if (border2D instanceof Polygon) {
 			Polygon poly = (Polygon) border2D;
-			for (Vector2D point : poly.getPoints())
+			for (Point2D point : poly.getPoints())
 				if (contains(point))
 					return true;
 		}
-		for (Vector2D point : getPoints())
+		for (Point2D point : getPoints())
 			if (contains(point))
 				return true;
 		return false;
@@ -106,15 +106,15 @@ public class Polygon implements Border2D {
 
 	@Override
 	@Nonnull
-	public Polygon translate(@Nonnull Vector2D v) {
+	public Polygon translate(@Nonnull Point2D v) {
 		return translate(v.getX(), v.getY());
 	}
 
 	@Override
 	@Nonnull
 	public Polygon translate(double x, double y) {
-		List<Vector2D> translated = new ArrayList<>();
-		for (Vector2D point : this.points)
+		List<Point2D> translated = new ArrayList<>();
+		for (Point2D point : this.points)
 			translated.add(point.add(x, y));
 		return new Polygon(translated);
 	}
@@ -127,26 +127,26 @@ public class Polygon implements Border2D {
 
 	@Override
 	@Nonnull
-	public Polygon rotate(@Nonnull Vector2D center, double a) {
-		List<Vector2D> rotated = new ArrayList<>();
-		for (Vector2D point : this.points)
+	public Polygon rotate(@Nonnull Point2D center, double a) {
+		List<Point2D> rotated = new ArrayList<>();
+		for (Point2D point : this.points)
 			rotated.add(point.subtract(center).rotate(a).add(center));
 		return new Polygon(rotated);
 	}
 
-	private Vector2D center;
+	private Point2D center;
 
 	@Override
 	@Nonnull
-	public Vector2D centroid() {
+	public Point2D centroid() {
 		if (center == null) {
 			double x = 0;
 			double y = 0;
-			for (Vector2D vector2D : points) {
-				x += vector2D.getX();
-				y += vector2D.getY();
+			for (Point2D point2D : points) {
+				x += point2D.getX();
+				y += point2D.getY();
 			}
-			center = new Vector2D(x / points.size(), y / points.size());
+			center = new Point2D(x / points.size(), y / points.size());
 		}
 		return center;
 	}
@@ -157,7 +157,7 @@ public class Polygon implements Border2D {
 	 * @return the points of the polygon
 	 */
 	@Nonnull
-	public List<Vector2D> getPoints() {
+	public List<Point2D> getPoints() {
 		return points;
 	}
 

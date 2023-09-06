@@ -16,11 +16,11 @@ public interface Border2D extends Serializable {
 	/**
 	 * Checks if the specified point is contained within the border.
 	 *
-	 * @param vector2D the 2D vector representing the point
+	 * @param point2D the 2D vector representing the point
 	 * @return true if the point is contained within the border, false otherwise
 	 */
 	@CheckReturnValue
-	boolean contains(@Nonnull Vector2D vector2D);
+	boolean contains(@Nonnull Point2D point2D);
 
 	/**
 	 * Checks if the border intersects with the specified border.
@@ -50,7 +50,7 @@ public interface Border2D extends Serializable {
 	 */
 	@CheckReturnValue
 	@Nonnull
-	default Border2D translate(@Nonnull Vector2D v) {
+	default Border2D translate(@Nonnull Point2D v) {
 		return translate(v.getX(), v.getY());
 	}
 
@@ -64,7 +64,7 @@ public interface Border2D extends Serializable {
 	 */
 	@CheckReturnValue
 	@Nonnull
-	Border2D rotate(@Nonnull Vector2D center, double a);
+	Border2D rotate(@Nonnull Point2D center, double a);
 
 	/**
 	 * Rotates the border around its centroid by the specified angle in radians.
@@ -85,5 +85,5 @@ public interface Border2D extends Serializable {
 	 */
 	@CheckReturnValue
 	@Nonnull
-	Vector2D centroid();
+    Point2D centroid();
 }
