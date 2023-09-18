@@ -26,6 +26,13 @@ class TestVector {
         Assertions.assertEquals(new Vector(new double[]{cx, cy, cz}), a.difference(b));
     }
 
+    @ParameterizedTest
+    @CsvSource("1,0,0,1,0,0")
+    void normalized(double ax, double ay, double az, double bx, double by, double bz) {
+        Assertions.assertEquals(new Vector(new double[]{bx, by, bz}),
+                new Vector(new double[]{ax, ay, az}).normalized());
+    }
+
     @Test
     void size() {
         Assertions.assertEquals(5, new Vector(new double[]{1, 2, 3, 4, 5}).getSize());

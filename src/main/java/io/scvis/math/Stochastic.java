@@ -39,4 +39,13 @@ public final class Stochastic {
         }
         return sum;
     }
+
+    public static int minimalAttempts(double p, double min, int n) {
+        double sum = bernoulliPdf(p, n, 0);
+        int k = 0;
+        while (sum < min) {
+            sum += bernoulliPdf(p, n, ++k);
+        }
+        return k;
+    }
 }

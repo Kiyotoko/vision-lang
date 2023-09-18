@@ -38,4 +38,13 @@ class TestStochastic {
     void combA(int exp, int n, int k) {
         assertEquals(exp, Stochastic.combA(n, k));
     }
+
+    @ParameterizedTest
+    @CsvSource({"1, 0.5, 0.5, 2", "2, 0.5, 1.0, 2", "3, 0.2, 0.8, 10"})
+    void minimalAttempts(int exp, double p, double min, int n) {
+        int result = Stochastic.minimalAttempts(p, min, n);
+        assertEquals(exp, result);
+        assertTrue(Stochastic.bernoulliCdf(p, n, 0, result) >= min);
+        assertFalse(Stochastic.bernoulliCdf(p, n, 0, result - 1) >= min);
+    }
 }

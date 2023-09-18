@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 public class Vector implements Serializable {
 
+    @Nonnull
     private final double[] elements;
 
     private final int size;
@@ -22,6 +23,7 @@ public class Vector implements Serializable {
     }
 
     @CheckReturnValue
+    @Nonnull
     public Vector add(@Nonnull Vector another) {
         Vector created = new Vector(size);
         for (int i = 0; i < size; i++) {
@@ -31,6 +33,7 @@ public class Vector implements Serializable {
     }
 
     @CheckReturnValue
+    @Nonnull
     public Vector subtract(@Nonnull Vector another) {
         Vector created = new Vector(size);
         for (int i = 0; i < size; i++) {
@@ -40,10 +43,12 @@ public class Vector implements Serializable {
     }
 
     @CheckReturnValue
+    @Nonnull
     public Vector difference(@Nonnull Vector another) {
         return subtract(another);
     }
 
+    @CheckReturnValue
     public double distance(@Nonnull Vector another) {
         double distance = 0;
         for (int i = 0; i < size; i++) {
@@ -53,6 +58,7 @@ public class Vector implements Serializable {
         return Math.sqrt(distance);
     }
 
+    @CheckReturnValue
     public double magnitude() {
         double magnitude = 0;
         for (double element : getElements())
@@ -60,8 +66,21 @@ public class Vector implements Serializable {
         return Math.sqrt(magnitude);
     }
 
+    @CheckReturnValue
     public double length() {
         return magnitude();
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public Vector normalized() {
+        double mag = magnitude();
+        Vector created = new Vector(size);
+        if (mag != 0) {
+            for (int i = 0; i < size; i++)
+                created.elements[i] = elements[i] / mag;
+        }
+        return created;
     }
 
     @Override
@@ -69,6 +88,8 @@ public class Vector implements Serializable {
         return Arrays.toString(elements);
     }
 
+    @CheckReturnValue
+    @Nonnull
     public double[] getElements() {
         return elements;
     }
@@ -97,10 +118,10 @@ public class Vector implements Serializable {
         if (!(obj instanceof Vector))
             return false;
 
-        Vector vector = (Vector) obj;
-        if (size != vector.size) return false;
+        Vector cast = (Vector) obj;
+        if (size != cast.size) return false;
         for (int i = 0; i < size; i++) {
-            if (elements[i] != vector.elements[i])
+            if (elements[i] != cast.elements[i])
                 return false;
         }
         return true;

@@ -82,7 +82,7 @@ The Geometry feature offers a collection of classes and methods for performing g
 
 ### Proto
 
-The Proto feature provides classes and utilities for handling protocol data. It includes functionality for serialization and deserialization of protocol buffers, as well as other related operations. This feature is beneficial for applications that communicate using
+The Proto feature provides classes and utilities for handling protocol entries. It includes functionality for serialization and deserialization of protocol buffers, as well as other related operations. This feature is beneficial for applications that communicate using
 
 ## Contributing
 
