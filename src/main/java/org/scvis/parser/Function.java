@@ -11,32 +11,36 @@ public class Function implements Value {
 
     private final @Nonnull Number value;
 
-    public static final @Nonnull Map<String, Evaluator> EVALUATOR_MAP = new HashMap<>();
+    protected static final @Nonnull Map<String, Evaluator> EVALUATOR_MAP = new HashMap<>();
     static  {
          EVALUATOR_MAP.putAll(Map.of(
-                "sin", a -> Math.sin(a[0].doubleValue()), "cos", a -> Math.cos(a[0].doubleValue()),
-                "tan", a -> Math.tan(a[0].doubleValue()), "asin", a -> Math.asin(a[0].doubleValue()),
-                "acos", a -> Math.acos(a[0].doubleValue()), "atan", a -> Math.atan(a[0].doubleValue()),
-                "sqrt", a -> Math.sqrt(a[0].doubleValue()), "abs", a -> Math.abs(a[0].doubleValue()),
-                "signum", a -> Math.signum(a[0].doubleValue()), "hypot", a -> Math.hypot(a[0].doubleValue(),
-                        a[1].doubleValue())
+                 "sin", checked(a -> Math.sin(a[0].doubleValue()), 1),
+                 "cos", checked(a -> Math.cos(a[0].doubleValue()), 1),
+                 "tan", checked(a -> Math.tan(a[0].doubleValue()), 1),
+                 "asin", checked(a -> Math.asin(a[0].doubleValue()), 1),
+                 "acos", checked(a -> Math.acos(a[0].doubleValue()), 1),
+                 "atan", checked(a -> Math.atan(a[0].doubleValue()), 1),
+                 "sqrt", checked(a -> Math.sqrt(a[0].doubleValue()), 1),
+                 "abs", checked(a -> Math.abs(a[0].doubleValue()), 1),
+                 "signum", checked(a -> Math.signum(a[0].doubleValue()), 1),
+                 "hypot", checked(a -> Math.hypot(a[0].doubleValue(), a[1].doubleValue()), 2)
          ));
          EVALUATOR_MAP.putAll(Map.of(
-                 "fac", args -> Stochastic.factorial(args[0].intValue()),
-                 "binom", args -> Stochastic.binom(args[0].intValue(), args[1].intValue()),
-                 "bernoullipdf", args -> Stochastic.bernoulliPdf(args[0].doubleValue(), args[1].intValue(),
-                         args[2].intValue()),
-                 "bernoullicdf", args -> Stochastic.bernoulliCdf(args[0].doubleValue(), args[1].intValue(),
-                         args[2].intValue(), args[3].intValue()),
-                 "minimalattempts", args -> Stochastic.minimalAttempts(args[0].doubleValue(), args[1].doubleValue(),
-                         args[2].intValue())
+                 "fac", checked(a -> Stochastic.factorial(a[0].intValue()), 1),
+                 "binom", checked(a -> Stochastic.binom(a[0].intValue(), a[1].intValue()), 2),
+                 "bernoulli_pdf", checked(a -> Stochastic.bernoulliPdf(a[0].doubleValue(), a[1].intValue(),
+                         a[2].intValue()), 3),
+                 "bernoulli_cdf", checked(a -> Stochastic.bernoulliCdf(a[0].doubleValue(), a[1].intValue(),
+                         a[2].intValue(), a[3].intValue()), 4),
+                 "minimal_attempts", checked(a -> Stochastic.minimalAttempts(a[0].doubleValue(),
+                         a[1].doubleValue(), a[2].intValue()), 3)
          ));
     }
 
-    public Function(@Nonnull String name, @Nonnull List<Operator> operators, @Nonnull List<Object> tokens) throws NoSuchMethodException {
+    public Function(@Nonnull String name, @Nonnull List<Operator> operators, @Nonnull List<Token> tokens) {
         Evaluator evaluator = EVALUATOR_MAP.get(name.toLowerCase());
         if (evaluator == null)
-            throw new NoSuchMethodException("No method found for " + name);
+            throw new EvaluationException("No method found for " + name);
         List<Number> values = new TokenEvaluator(operators, tokens).evaluate();
         value = evaluator.evaluate(values.toArray(new Number[0]));
     }
@@ -44,6 +48,14 @@ public class Function implements Value {
     @FunctionalInterface
     public interface Evaluator {
         Number evaluate(Number... args);
+    }
+
+    public static Evaluator checked(Evaluator evaluator, int count) {
+        return args -> {
+            if (count != args.length)
+                throw new EvaluationException("Expected " + count + " arguments, got " + args.length);
+            return evaluator.evaluate(args);
+        };
     }
 
     @Nonnull

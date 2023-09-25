@@ -6,8 +6,8 @@ public final class Stochastic {
         throw new UnsupportedOperationException();
     }
 
-    public static long factorial(int n) {
-        long sum = 1;
+    public static double factorial(int n) {
+        double sum = 1;
         while (n > 0) {
             sum *= n;
             n--;
@@ -15,15 +15,15 @@ public final class Stochastic {
         return sum;
     }
 
-    public static long binom(int n, int k) {
+    public static double binom(int n, int k) {
         return factorial(n) / (factorial(k) * factorial(n - k));
     }
 
-    public static long combU(int n, int k) {
+    public static double combU(int n, int k) {
         return binom(n, k);
     }
 
-    public static long combA(int n, int k){
+    public static double combA(int n, int k){
         return binom(n + k - 1, k);
     }
 

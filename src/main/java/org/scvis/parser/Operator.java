@@ -3,7 +3,7 @@ package org.scvis.parser;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-public interface Operator extends Comparable<Operator> {
+public interface Operator extends Token, Comparable<Operator> {
 
     Operator SEPARATOR = new Operator() {
         @Nonnull
@@ -19,7 +19,7 @@ public interface Operator extends Comparable<Operator> {
 
         @Override
         public int priority() {
-            return 0;
+            return -1;
         }
     };
 

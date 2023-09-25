@@ -1,8 +1,11 @@
-package org.scvis.parser;
+package org.scvis;
 
+import org.scvis.parser.TokenEvaluator;
+import org.scvis.parser.TokenParser;
+
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.io.*;
-import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +26,9 @@ public class Calculator {
         this(System.in, System.out);
     }
 
-    public static List<Number> interpret(String line) throws ParseException, NoSuchMethodException {
+    @CheckReturnValue
+    @Nonnull
+    public static List<Number> interpret(@Nonnull String line) {
         TokenParser parser = new TokenParser();
         parser.tokenize(line);
         return new TokenEvaluator(parser.getOperators(), parser.getTokens()).evaluate();
@@ -33,7 +38,7 @@ public class Calculator {
         try(Scanner scanner = new Scanner(input)) {
             while (true) {
                 output.write(">>> ".getBytes());
-                String line = scanner.next();
+                String line = scanner.nextLine();
                 if (Objects.equals(line, "exit")) break;
                 try {
                     Iterator<Number> iterator = interpret(line).listIterator();

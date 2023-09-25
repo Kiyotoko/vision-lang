@@ -3,7 +3,7 @@ package org.scvis.parser;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-public interface Value {
+public interface Value extends Token {
 
     @CheckReturnValue
     @Nonnull

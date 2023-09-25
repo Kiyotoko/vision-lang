@@ -21,6 +21,8 @@ public class BaseOperator implements Operator {
             new Constant(a.get().doubleValue() % b.get().doubleValue()), "%", 3);
     public static final Operator POW = new BaseOperator((a, b) ->
             new Constant(Math.pow(a.get().doubleValue(), b.get().doubleValue())), "^", 4);
+    public static final Operator EQU = new BaseOperator((a, b) -> new Constant(a.get().equals(b.get()) ? 1 : 0),
+            "=", 0);
 
     private final @Nonnull BiFunction<Value, Value, Value> function;
     private final @Nonnull String ident;
