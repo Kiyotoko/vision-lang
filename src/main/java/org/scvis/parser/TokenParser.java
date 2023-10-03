@@ -34,14 +34,21 @@ public class TokenParser {
                 Operator operator = CHARACTER_OPERATOR_MAP.get(c);
                 operators.add(operator);
                 tokens.add(operator);
-            } else if (c == '!') {
-                applyFactorial();
-            } else if (c == '(') {
-                tokens.add(parseBrackets(chars));
-            } else if (c == ')') {
-                break;
-            }   else if (c != ' ') {
-                throw new EvaluationException("Could not parse char " + c);
+            } else {
+                switch (c) {
+                    case '!':
+                        applyFactorial();
+                        break;
+                    case '(':
+                        tokens.add(parseBrackets(chars));
+                        break;
+                    case ')':
+                        return;
+                    case ' ':
+                        break;
+                    default:
+                        throw new EvaluationException("Could not parse char " + c);
+                }
             }
         }
     }
@@ -114,11 +121,7 @@ public class TokenParser {
         for (;pos < chars.length; pos++) {
             char c = chars[pos];
             if (Character.isDigit(c)) {
-                if (real > -1) {
-                    build += Character.digit(c, 10) / Math.pow(10.0, pos - real);
-                } else {
-                    build = build * 10.0 + Character.digit(c, 10);
-                }
+                build = build * 10.0 + Character.digit(c, 10);
             } else if (c == '.') {
                 if (real > -1)
                     throw new EvaluationException("Could not parse number by " + c);
@@ -128,6 +131,8 @@ public class TokenParser {
                 break;
             }
         }
+        if (real > -1)
+            build /= Math.pow(10.0, pos - real - 1);
         return new Constant(build);
     }
 

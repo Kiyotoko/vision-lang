@@ -52,7 +52,7 @@ public class TokenEvaluator {
     @Nonnull
     public List<Number> evaluate() {
         eliminate();
-        ArrayList<Number> values = new ArrayList<>(tokens.size());
+        ArrayList<Number> values = new ArrayList<>(tokens.size() / 2 + 1);
         int i = 0;
         for (Token token : tokens) {
             if (i % 2 == 0) values.add(((Value) token).get());
