@@ -10,7 +10,7 @@ class TestMatrix {
         Matrix a = new Matrix(new double[][]{{1, 2}, {3, 4}});
         Matrix b = new Matrix(new double[][]{{5, 6}, {7, 8}});
 
-        Assertions.assertDoesNotThrow(( ) -> {
+        Assertions.assertDoesNotThrow(() -> {
             System.out.println(a.add(b));
         });
     }
@@ -20,7 +20,7 @@ class TestMatrix {
         Matrix a = new Matrix(new double[][]{{1, 2}, {3, 4}});
         Matrix b = new Matrix(new double[][]{{5, 6}, {7, 8}});
 
-        Assertions.assertDoesNotThrow(( ) -> {
+        Assertions.assertDoesNotThrow(() -> {
             System.out.println(a.subtract(b));
         });
     }

@@ -7,12 +7,25 @@ import java.util.Arrays;
 
 public class Vector implements Serializable {
 
+    @CheckReturnValue
+    @Nonnull
+    public static Matrix toMatrix(@Nonnull Vector vector, @Nonnull Vector... vectors) {
+        int size = vector.getSize();
+        Matrix matrix = new Matrix(vectors.length + 1, size);
+        System.arraycopy(vector.getElements(), 0, matrix.getEntries()[0], 0, size);
+        for (int i = 0; i < vectors.length; i++) {
+            if (vectors[i].getSize() != size) throw new IllegalArgumentException();
+            System.arraycopy(vectors[i].getElements(), 0, matrix.getEntries()[i + 1], 0, size);
+        }
+        return matrix;
+    }
+
     @Nonnull
     private final double[] elements;
 
     private final int size;
 
-    public Vector(@Nonnull double[] elements) {
+    public Vector(@Nonnull double... elements) {
         this.elements = elements;
         this.size = elements.length;
     }

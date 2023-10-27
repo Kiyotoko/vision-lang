@@ -7,47 +7,48 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Function implements Value {
+public class Function implements Value<Object> {
 
-    private final @Nonnull Number value;
+    private final @Nonnull Object value;
 
     protected static final @Nonnull Map<String, Evaluator> EVALUATOR_MAP = new HashMap<>();
-    static  {
-         EVALUATOR_MAP.putAll(Map.of(
-                 "sin", checked(a -> Math.sin(a[0].doubleValue()), 1),
-                 "cos", checked(a -> Math.cos(a[0].doubleValue()), 1),
-                 "tan", checked(a -> Math.tan(a[0].doubleValue()), 1),
-                 "asin", checked(a -> Math.asin(a[0].doubleValue()), 1),
-                 "acos", checked(a -> Math.acos(a[0].doubleValue()), 1),
-                 "atan", checked(a -> Math.atan(a[0].doubleValue()), 1),
-                 "sqrt", checked(a -> Math.sqrt(a[0].doubleValue()), 1),
-                 "abs", checked(a -> Math.abs(a[0].doubleValue()), 1),
-                 "signum", checked(a -> Math.signum(a[0].doubleValue()), 1),
-                 "hypot", checked(a -> Math.hypot(a[0].doubleValue(), a[1].doubleValue()), 2)
-         ));
-         EVALUATOR_MAP.putAll(Map.of(
-                 "fac", checked(a -> Stochastic.factorial(a[0].intValue()), 1),
-                 "binom", checked(a -> Stochastic.binom(a[0].intValue(), a[1].intValue()), 2),
-                 "bernoulli_pdf", checked(a -> Stochastic.bernoulliPdf(a[0].doubleValue(), a[1].intValue(),
-                         a[2].intValue()), 3),
-                 "bernoulli_cdf", checked(a -> Stochastic.bernoulliCdf(a[0].doubleValue(), a[1].intValue(),
-                         a[2].intValue(), a[3].intValue()), 4),
-                 "minimal_attempts", checked(a -> Stochastic.minimalAttempts(a[0].doubleValue(),
-                         a[1].doubleValue(), a[2].intValue()), 3)
-         ));
+
+    static {
+        EVALUATOR_MAP.putAll(Map.of(
+                "sin", checked(a -> Math.sin(a[0].getDouble()), 1),
+                "cos", checked(a -> Math.cos(a[0].getDouble()), 1),
+                "tan", checked(a -> Math.tan(a[0].getDouble()), 1),
+                "asin", checked(a -> Math.asin(a[0].getDouble()), 1),
+                "acos", checked(a -> Math.acos(a[0].getDouble()), 1),
+                "atan", checked(a -> Math.atan(a[0].getDouble()), 1),
+                "sqrt", checked(a -> Math.sqrt(a[0].getDouble()), 1),
+                "abs", checked(a -> Math.abs(a[0].getDouble()), 1),
+                "signum", checked(a -> Math.signum(a[0].getDouble()), 1),
+                "hypot", checked(a -> Math.hypot(a[0].getDouble(), a[1].getDouble()), 2)
+        ));
+        EVALUATOR_MAP.putAll(Map.of(
+                "fac", checked(a -> Stochastic.factorial(a[0].getInteger()), 1),
+                "binom", checked(a -> Stochastic.binom(a[0].getInteger(), a[1].getInteger()), 2),
+                "bernoulli_pdf", checked(a -> Stochastic.bernoulliPdf(a[0].getDouble(), a[1].getInteger(),
+                        a[2].getInteger()), 3),
+                "bernoulli_cdf", checked(a -> Stochastic.bernoulliCdf(a[0].getDouble(), a[1].getInteger(),
+                        a[2].getInteger(), a[3].getInteger()), 4),
+                "minimal_attempts", checked(a -> Stochastic.minimalAttempts(a[0].getDouble(),
+                        a[1].getDouble(), a[2].getInteger()), 3)
+        ));
     }
 
     public Function(@Nonnull String name, @Nonnull List<Operator> operators, @Nonnull List<Token> tokens) {
         Evaluator evaluator = EVALUATOR_MAP.get(name.toLowerCase());
         if (evaluator == null)
             throw new EvaluationException("No method found for " + name);
-        List<Number> values = new TokenEvaluator(operators, tokens).evaluate();
-        value = evaluator.evaluate(values.toArray(new Number[0]));
+        List<Value<?>> values = new TokenEvaluator(operators, tokens).evaluate();
+        value = evaluator.evaluate(values.toArray(new Value[0]));
     }
 
     @FunctionalInterface
     public interface Evaluator {
-        Number evaluate(Number... args);
+        Object evaluate(Value<?>... args);
     }
 
     public static Evaluator checked(Evaluator evaluator, int count) {
@@ -60,7 +61,7 @@ public class Function implements Value {
 
     @Nonnull
     @Override
-    public Number get() {
+    public Object get() {
         return value;
     }
 }

@@ -25,10 +25,12 @@ public class TokenEvaluator {
 
     private void eliminate(Operator operator) {
         int index = tokens.indexOf(operator);
+        if (index == -1)
+            throw new EvaluationException("Operator must be present in tokens");
         if (index == 0) {
             Token right = tokens.get(1);
             if (operator.isSign() && right.isValue()) {
-                Value evaluated = operator.evaluate(Constant.ZERO, (Value) right);
+                Value<?> evaluated = operator.evaluate(NumberValue.ZERO, (Value<?>) right);
                 tokens.remove(0);
                 tokens.set(0, evaluated);
             } else {
@@ -38,7 +40,7 @@ public class TokenEvaluator {
             Token left = tokens.get(index - 1);
             Token right = tokens.get(index + 1);
             if (left.isValue() && right.isValue()) {
-                Value evaluated = operator.evaluate((Value) left, (Value) right);
+                Value<?> evaluated = operator.evaluate((Value<?>) left, (Value<?>) right);
                 tokens.remove(index + 1);
                 tokens.remove(index);
                 tokens.set(index - 1, evaluated);
@@ -50,13 +52,14 @@ public class TokenEvaluator {
 
     @CheckReturnValue
     @Nonnull
-    public List<Number> evaluate() {
+    public List<Value<?>> evaluate() {
         eliminate();
-        ArrayList<Number> values = new ArrayList<>(tokens.size() / 2 + 1);
+        ArrayList<Value<?>> values = new ArrayList<>(tokens.size() / 2 + 1);
         int i = 0;
         for (Token token : tokens) {
-            if (i % 2 == 0) values.add(((Value) token).get());
-            else if (token != Operator.SEPARATOR) throw new EvaluationException("Expected separator, got " + token);
+            if (i % 2 == 0) values.add(((Value<?>) token));
+            else if (token != Operator.SEPARATOR)
+                throw new EvaluationException("Expected separator, got " + token.getClass().getSimpleName());
             i++;
         }
         return values;

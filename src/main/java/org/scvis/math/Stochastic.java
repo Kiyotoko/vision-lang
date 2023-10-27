@@ -23,7 +23,7 @@ public final class Stochastic {
         return binom(n, k);
     }
 
-    public static double combA(int n, int k){
+    public static double combA(int n, int k) {
         return binom(n + k - 1, k);
     }
 
@@ -35,7 +35,7 @@ public final class Stochastic {
         double sum = 0;
         while (min <= max) {
             sum += bernoulliPdf(p, n, min);
-            min ++;
+            min++;
         }
         return sum;
     }
