@@ -33,11 +33,10 @@ import javax.annotation.Nonnull;
  * if no left value is given. If it can not get a left or right value, a {@link EvaluationException} is thrown.
  *
  * @author karlz
- * @see Token
  * @see Comparable
  * @see EvaluationException
  */
-public interface Operator extends Token, Comparable<Operator> {
+public interface Operator extends Comparable<Operator> {
 
     /**
      * Default implementation of a separator operator. A separator split arguments of functions or separates expressions
@@ -46,7 +45,7 @@ public interface Operator extends Token, Comparable<Operator> {
     Operator SEPARATOR = new Operator() {
         @Nonnull
         @Override
-        public Value<?> evaluate(@Nonnull Value<?> left, @Nonnull Value<?> right) {
+        public Object evaluate(@Nonnull Object left, @Nonnull Object right) {
             throw new UnsupportedOperationException();
         }
 
@@ -70,7 +69,7 @@ public interface Operator extends Token, Comparable<Operator> {
      */
     @CheckReturnValue
     @Nonnull
-    Value<?> evaluate(@Nonnull Value<?> left, @Nonnull Value<?> right);
+    Object evaluate(@Nonnull Object left, @Nonnull Object right);
 
     /**
      * A sign is an operator that can take <code>0</code> as a left value.

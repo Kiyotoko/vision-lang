@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Karl Zschiebsch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package org.scvis.parser;
 
 import org.scvis.math.Stochastic;
@@ -10,8 +34,6 @@ import java.util.*;
  * TokenParser parses a string into tokens and operators. The tokens contain all operators.
  *
  * @author karlz
- * @see Token
- * @see Value
  * @see Operator
  */
 public class TokenParser {
@@ -28,7 +50,9 @@ public class TokenParser {
 
     private final @Nonnull List<Operator> operators = new ArrayList<>();
 
-    private final @Nonnull List<Token> tokens = new ArrayList<>();
+    private final @Nonnull List<Object> tokens = new ArrayList<>();
+
+    private final @Nonnull NameSpace nameSpace = NameSpace.buildIns();
 
     /**
      * Parses a string from the beginning and stores the tokens.
@@ -64,10 +88,18 @@ public class TokenParser {
                     case '!':
                         applyFactorial();
                         break;
+                    case '"':
+                    case '\'':
+                        tokens.add(parseString(chars));
+                        break;
                     case '(':
                         tokens.add(parseBrackets(chars));
                         break;
+                    case '[':
+                        tokens.add(parseArray(chars));
+                        break;
                     case ')':
+                    case ']':
                         return;
                     case ' ':
                         break;
@@ -97,9 +129,9 @@ public class TokenParser {
 
     private void applyFactorial() {
         int index = tokens.size() - 1;
-        Token last = tokens.get(index);
-        if (last.isValue()) {
-            tokens.set(index, new NumberValue(Stochastic.factorial(((NumberValue) last).get().intValue())));
+        Object last = tokens.get(index);
+        if (last instanceof Number) {
+            tokens.set(index, Stochastic.factorial(((Number) last).intValue()));
         } else {
             throw new EvaluationException("Factorial requires a left value");
         }
@@ -107,11 +139,11 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private NumberValue parseVar(@Nonnull String name) {
-        NumberValue numberValue = NumberValue.CONSTANT_MAP.get(name.toLowerCase());
-        if (numberValue == null)
+    private Object parseVar(@Nonnull String name) {
+        Object variable = nameSpace.get(name.toLowerCase());
+        if (variable == null)
             throw new EvaluationException("No variable found for " + name);
-        return numberValue;
+        return variable;
     }
 
     @CheckReturnValue
@@ -125,21 +157,46 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Brackets parseBrackets(@Nonnull char[] chars) {
+    private Object parseBrackets(@Nonnull char[] chars) {
         TokenParser parser = parseSubTokens(chars);
-        return new Brackets(parser.operators, parser.tokens);
+        List<Object> values = new TokenEvaluator(parser.operators, parser.tokens).evaluate();
+        if (values.size() != 1) {
+            throw new EvaluationException("Brackets wrap one effective value, got " + values.size());
+        }
+        return values.get(0);
     }
 
     @CheckReturnValue
     @Nonnull
-    private Function parseFunction(@Nonnull String name, @Nonnull char[] chars) {
+    private Object parseFunction(@Nonnull String name, @Nonnull char[] chars) {
         TokenParser parser = parseSubTokens(chars);
-        return new Function(name, parser.operators, parser.tokens);
+        return nameSpace.call(name, new TokenEvaluator(parser.operators, parser.tokens).evaluate());
     }
 
     @CheckReturnValue
     @Nonnull
-    private Token parseText(@Nonnull char[] chars) {
+    private Object parseArray(@Nonnull char[] chars) {
+        TokenParser parser = parseSubTokens(chars);
+        return new TokenEvaluator(parser.operators, parser.tokens).evaluate();
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    private Object parseString(@Nonnull char[] chars) {
+        char intro = chars[pos++];
+        StringBuilder build = new StringBuilder();
+        for (; pos < chars.length; pos++) {
+            char c = chars[pos];
+            if (c != intro)
+                build.append(chars[pos]);
+            else break;
+        }
+        return build.toString();
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    private Object parseText(@Nonnull char[] chars) {
         StringBuilder build = new StringBuilder();
         for (; pos < chars.length; pos++) {
             char c = chars[pos];
@@ -157,7 +214,7 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Token parseNumber(@Nonnull char[] chars) {
+    private Object parseNumber(@Nonnull char[] chars) {
         double build = 0;
         int real = -1;
         for (; pos < chars.length; pos++) {
@@ -175,7 +232,7 @@ public class TokenParser {
         }
         if (real > -1)
             build /= Math.pow(10.0, pos - real - 1);
-        return new NumberValue(build);
+        return build;
     }
 
     @Nonnull
@@ -184,7 +241,7 @@ public class TokenParser {
     }
 
     @Nonnull
-    public List<Token> getTokens() {
+    public List<Object> getTokens() {
         return tokens;
     }
 }

@@ -28,7 +28,6 @@ package org.scvis;
 import org.scvis.parser.EvaluationException;
 import org.scvis.parser.TokenEvaluator;
 import org.scvis.parser.TokenParser;
-import org.scvis.parser.Value;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -55,7 +54,7 @@ public class Calculator {
 
     @CheckReturnValue
     @Nonnull
-    public static List<Value<?>> interpret(@Nonnull String line) {
+    public static List<Object> interpret(@Nonnull String line) {
         TokenParser parser = new TokenParser();
         parser.tokenize(line);
         return new TokenEvaluator(parser.getOperators(), parser.getTokens()).evaluate();
@@ -68,10 +67,10 @@ public class Calculator {
                 String line = scanner.nextLine();
                 if (Objects.equals(line, "exit")) break;
                 try {
-                    Iterator<Value<?>> iterator = interpret(line).listIterator();
+                    Iterator<Object> iterator = interpret(line).listIterator();
                     StringBuilder builder = new StringBuilder();
                     while (iterator.hasNext()) {
-                        builder.append(iterator.next().get());
+                        builder.append(iterator.next());
                         if (iterator.hasNext()) builder.append("; ");
                     }
                     builder.append("\n");

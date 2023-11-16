@@ -24,18 +24,8 @@
 
 package org.scvis.parser;
 
-import javax.annotation.Nonnull;
+import java.util.List;
 
-public class StringValue implements Value<String> {
-    private final @Nonnull String value;
-
-    public StringValue(@Nonnull String value) {
-        this.value = value;
-    }
-
-    @Nonnull
-    @Override
-    public String get() {
-        return value;
-    }
+public interface Evaluator {
+    Object evaluate(List<Object> tokens);
 }

@@ -28,7 +28,6 @@ package org.scvis.parser;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 /**
@@ -41,22 +40,15 @@ import java.util.function.BinaryOperator;
 @Immutable
 public class BaseOperator implements Operator {
 
-    public static final Operator ADD = new BaseOperator((a, b) ->
-            new NumberValue(a.getDouble() + b.getDouble()), "+", 1);
-    public static final Operator SUBTRACT = new BaseOperator((a, b) ->
-            new NumberValue(a.getDouble() - b.getDouble()), "-", 1);
-    public static final Operator MULTIPLY = new BaseOperator((a, b) ->
-            new NumberValue(a.getDouble() * b.getDouble()), "*", 2);
-    public static final Operator DIVIDE = new BaseOperator((a, b) ->
-            new NumberValue(a.getDouble() / b.getDouble()), "/", 2);
-    public static final Operator MOD = new BaseOperator((a, b) ->
-            new NumberValue(a.getDouble() % b.getDouble()), "%", 3);
-    public static final Operator POW = new BaseOperator((a, b) ->
-            new NumberValue(Math.pow(a.getDouble(), b.getDouble())), "^", 4);
-    public static final Operator EQU = new BaseOperator((a, b) -> new NumberValue(a.get().equals(b.get()) ? 1 : 0),
-            "=", 0);
+    public static final Operator ADD = new BaseOperator((a, b) -> (double) a + (double) b, "+", 1);
+    public static final Operator SUBTRACT = new BaseOperator((a, b) -> (double) a - (double) b, "-", 1);
+    public static final Operator MULTIPLY = new BaseOperator((a, b) -> (double) a * (double) b, "*", 2);
+    public static final Operator DIVIDE = new BaseOperator((a, b) -> (double) a / (double) b, "/", 2);
+    public static final Operator MOD = new BaseOperator((a, b) -> (double) a % (double) b, "%", 3);
+    public static final Operator POW = new BaseOperator((a, b) -> Math.pow((double) a, (double) b), "^", 4);
+    public static final Operator EQU = new BaseOperator((a, b) -> a.equals(b) ? 1 : 0, "=", 0);
 
-    private final @Nonnull BiFunction<Value<?>, Value<?>, Value<?>> function;
+    private final @Nonnull BinaryOperator<Object> function;
     private final @Nonnull String representation;
     private final int priority;
     private final boolean sign;
@@ -68,7 +60,7 @@ public class BaseOperator implements Operator {
      * @param representation the string that represents this operator
      * @param priority       the priority
      */
-    public BaseOperator(@Nonnull BinaryOperator<Value<?>> function, @Nonnull String representation, int priority) {
+    public BaseOperator(@Nonnull BinaryOperator<Object> function, @Nonnull String representation, int priority) {
         this.function = function;
         this.representation = representation;
         this.priority = priority;
@@ -78,7 +70,7 @@ public class BaseOperator implements Operator {
     @CheckReturnValue
     @Nonnull
     @Override
-    public Value<?> evaluate(@Nonnull Value<?> left, @Nonnull Value<?> right) {
+    public Object evaluate(@Nonnull Object left, @Nonnull Object right) {
         return function.apply(left, right);
     }
 
