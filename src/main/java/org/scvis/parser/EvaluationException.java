@@ -1,8 +1,11 @@
 package org.scvis.parser;
 
-public class EvaluationException extends RuntimeException {
+import org.scvis.ScVisException;
 
-    public EvaluationException(String message) {
-        super(message);
+public class EvaluationException extends ScVisException {
+
+    public EvaluationException(String message, int errorCode) {
+        super(message, errorCode);
+        checkForRange(200, 299);
     }
 }

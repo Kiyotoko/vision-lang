@@ -50,13 +50,8 @@ public interface Operator extends Comparable<Operator> {
         }
 
         @Override
-        public boolean isSign() {
-            return false;
-        }
-
-        @Override
         public int priority() {
-            return -1;
+            return -10;
         }
     };
 
@@ -69,15 +64,7 @@ public interface Operator extends Comparable<Operator> {
      */
     @CheckReturnValue
     @Nonnull
-    Object evaluate(@Nonnull Object left, @Nonnull Object right);
-
-    /**
-     * A sign is an operator that can take <code>0</code> as a left value.
-     *
-     * @return if this operator is a sign
-     */
-    @CheckReturnValue
-    boolean isSign();
+    Object evaluate(@Nonnull Object left, @Nonnull Object right) throws ClassCastException;
 
     /**
      * The priority is the sequence, in which the values are evaluated.

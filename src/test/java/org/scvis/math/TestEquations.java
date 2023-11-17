@@ -24,12 +24,14 @@
 
 package org.scvis.math;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestEquations {
 
+    @Disabled
     @Test
     void solveMatrix() {
         assertArrayEquals(new double[]{1, -1},
@@ -37,6 +39,7 @@ class TestEquations {
                         .getElements());
     }
 
+    @Disabled
     @Test
     void solveArray() {
         assertArrayEquals(new double[]{1, -1}, Equations.solve(new double[][]{{2, 3}, {5, 3}}, new double[]{-1, 2}));

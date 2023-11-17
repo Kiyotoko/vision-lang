@@ -25,11 +25,10 @@ class TestVector {
     @ParameterizedTest
     @CsvSource("4,5,6,1,2,3,3,3,3")
     void subtract(double ax, double ay, double az, double bx, double by, double bz, double cx, double cy, double cz) {
-        Vector a = new Vector(ax, ay, az);
         Vector b = new Vector(bx, by, bz);
 
-        Assertions.assertEquals(new Vector(cx, cy, cz), a.subtract(b));
-        Assertions.assertEquals(new Vector(cx, cy, cz), a.difference(b));
+        Assertions.assertEquals(new Vector(cx, cy, cz), new Vector(ax, ay, az).subtract(b));
+        Assertions.assertEquals(new Vector(cx, cy, cz), new Vector(ax, ay, az).difference(b));
     }
 
     @ParameterizedTest

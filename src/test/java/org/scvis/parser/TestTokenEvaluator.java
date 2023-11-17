@@ -9,9 +9,8 @@ import java.util.List;
 class TestTokenEvaluator {
 
     @Test
-    void evaluate() {
-        Assertions.assertEquals(List.of(23.0), new TokenEvaluator(new ArrayList<>(List.of(BaseOperator.ADD,
-                BaseOperator.MULTIPLY)), new ArrayList<>(List.of(new NumberValue(3), new NumberValue(5),
-                new NumberValue(4)))).evaluate());
+    void evaluate() throws EvaluationException, AccessException {
+        Assertions.assertEquals(List.of(23.0), new TokenEvaluator(new ArrayList<>(List.of(BinaryOperator.OperatorAndSign.ADD,
+                BinaryOperator.MUL)), new ArrayList<>(List.of(3, BinaryOperator.OperatorAndSign.ADD,5, BinaryOperator.MUL, 4))).evaluate());
     }
 }

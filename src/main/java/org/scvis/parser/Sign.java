@@ -24,8 +24,5 @@
 
 package org.scvis.parser;
 
-import java.util.List;
-
-public interface Evaluator {
-    Object evaluate(List<Object> tokens);
+public interface Sign {
 }

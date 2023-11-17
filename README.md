@@ -25,12 +25,10 @@ Check out [Jitpack](https://jitpack.io/#karl-zschiebsch/scvis) to get it for you
 Use it to parse expressions.
 ```java
 import org.scvis.Calculator;
-
-...
+import org.scvis.ScVis;
 
 // Interpret and evaluate mathematical expressions ...
-Calculator.interpret("sqrt(144)-(2+(8-3)!)"); // Returns [22.0]
-Calculator.interpret("bernoulli_pdf(0.5, 2, 2); 10!"); // Returns [0.25, 3628800]
+ScVis.interpret("sqrt(144)-(2+(8-3)!)"); // Returns [22.0]
 
 // ... or create and start the interactive mode for continuous input
 Calculator calculator = new Calculator();
@@ -40,8 +38,6 @@ calculator.runAndServe();
 Perform calculations with vectors, matrices, points, and probabilities.
 ```java
 import org.scvis.math.Vector;
-
-...
 
 new Vector(new double[]{2, 4, 7}).add(new Vector(new double[]{8, 3, 2})); // Returns [10, 7, 9]
 
