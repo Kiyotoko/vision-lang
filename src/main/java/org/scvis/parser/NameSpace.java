@@ -24,13 +24,18 @@
 
 package org.scvis.parser;
 
+import org.scvis.math.Stochastic;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.scvis.parser.Callable.num;
+import static org.scvis.parser.Callable.obj;
 
 public class NameSpace {
 
@@ -53,11 +58,26 @@ public class NameSpace {
         BUILD_INS.declare("sqrt", (Callable) args -> Math.sqrt(num(args, 0).doubleValue()));
         BUILD_INS.declare("abs", (Callable) args -> Math.abs(num(args, 0).doubleValue()));
         BUILD_INS.declare("signum", (Callable) args -> Math.signum(num(args, 0).doubleValue()));
-        BUILD_INS.declare("hypot", (Callable) args -> Math.hypot(num(args, 0).doubleValue(), num(args, 1).doubleValue()));
+        BUILD_INS.declare("hypot",
+                (Callable) args -> Math.hypot(num(args, 0).doubleValue(), num(args, 1).doubleValue()));
 
         BUILD_INS.declare("pi", Math.PI);
         BUILD_INS.declare("e", Math.E);
         BUILD_INS.declare("tau", TAU);
+
+        BUILD_INS.declare("range", (Callable) args -> {
+            double sta = num(args, 0).doubleValue(), ste = num(args, 1).doubleValue(), sto =
+                    num(args, 2).doubleValue();
+            return new Range(sta, ste, sto);
+        });
+        BUILD_INS.declare("type", (Callable) args -> resolved(obj(args, 0)).getClass().getSimpleName());
+        BUILD_INS.declare("str", (Callable) args -> resolved(obj(args, 0)).toString());
+
+        NameSpace probability = new NameSpace();
+        probability.declare("fac", (Callable) args -> Stochastic.factorial(num(args, 0).shortValue()));
+        probability.declare("binom",
+                (Callable) args -> Stochastic.binom(num(args, 0).shortValue(), num(args, 1).shortValue()));
+        BUILD_INS.declare("probability", probability);
     }
 
     @CheckReturnValue

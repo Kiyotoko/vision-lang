@@ -115,7 +115,7 @@ public class TokenParser {
                         addOperator(BinaryOperator.MOD);
                         break;
                     case '!':
-                        if (getNext() == '=') addOperator(ComparisonOperator.NOT_EQUALS);
+                        if (ifNextIs('=')) addOperator(ComparisonOperator.NOT_EQUALS);
                         else applyFactorial();
                         break;
                     case ' ':
@@ -144,7 +144,7 @@ public class TokenParser {
         operators.add(Operator.SEPARATOR);
     }
 
-    public void addOperator(Operator operator) {
+    public void addOperator(@Nonnull Operator operator) {
         tokens.add(operator);
         operators.add(operator);
     }
@@ -171,7 +171,7 @@ public class TokenParser {
         if (index < 0) throw new ParsingException("Factorial requires a left value", 150);
         Object last = tokens.get(index);
         if (last instanceof Number) {
-            tokens.set(index, Stochastic.factorial(((Number) last).intValue()));
+            tokens.set(index, Stochastic.factorial(((Number) last).shortValue()));
         } else {
             throw new ParsingException("Factorial requires a left value", 150);
         }
@@ -179,8 +179,52 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseVar(@Nonnull String name) {
-        return nameSpace.get(name.toLowerCase());
+    private Object parseText() throws ParsingException, EvaluationException, AccessException {
+        StringBuilder build = new StringBuilder();
+        NameSpace working = nameSpace;
+        for (; pos < chars.length; pos++) {
+            char c = chars[pos];
+            if (Character.isAlphabetic(c) || Character.isDigit(c) || c == '_')
+                build.append(chars[pos]);
+            else if (c == '.') {
+                Object space = working.get(build.toString()).resolve();
+                if (space instanceof NameSpace) {
+                    working = (NameSpace) space;
+                    build = new StringBuilder();
+                } else {
+                    throw new AccessException(new ClassCastException(space.toString()));
+                }
+            } else break;
+        }
+        if (pos < chars.length && chars[pos] == '(') {
+            return parseFunction(working, build.toString());
+        } else {
+            pos--;
+            return parseVar(working, build.toString());
+        }
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    private Object parseFunction(@Nonnull NameSpace working, @Nonnull String name)
+            throws ParsingException, AccessException, EvaluationException {
+        TokenParser parser = parseSubTokens();
+        Object function = working.get(name).resolve();
+        if (function instanceof Callable) {
+            try {
+                return ((Callable) function).call(new TokenEvaluator(parser.operators, parser.tokens).evaluate());
+            } catch (ClassCastException e) {
+                throw new AccessException(e);
+            }
+        } else {
+            throw new ParsingException(name + " is no function", 180);
+        }
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    private Object parseVar(@Nonnull NameSpace working, @Nonnull String name) {
+        return working.get(name.toLowerCase());
     }
 
     @CheckReturnValue
@@ -206,23 +250,6 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseFunction(@Nonnull String name)
-            throws ParsingException, AccessException, EvaluationException {
-        TokenParser parser = parseSubTokens();
-        Object function = nameSpace.get(name).resolve();
-        if (function instanceof Callable) {
-            try {
-                return ((Callable) function).call(new TokenEvaluator(parser.operators, parser.tokens).evaluate());
-            } catch (ClassCastException e) {
-                throw new AccessException(e);
-            }
-        } else {
-            throw new ParsingException(name + " is no function", 180);
-        }
-    }
-
-    @CheckReturnValue
-    @Nonnull
     private Object parseArray() throws ParsingException, EvaluationException, AccessException {
         TokenParser parser = parseSubTokens();
         return new TokenEvaluator(parser.operators, parser.tokens).evaluate();
@@ -244,24 +271,6 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseText() throws ParsingException, EvaluationException, AccessException {
-        StringBuilder build = new StringBuilder();
-        for (; pos < chars.length; pos++) {
-            char c = chars[pos];
-            if (Character.isAlphabetic(c) || Character.isDigit(c) || c == '_')
-                build.append(chars[pos]);
-            else break;
-        }
-        if (pos < chars.length && chars[pos] == '(') {
-            return parseFunction(build.toString());
-        } else {
-            pos--;
-            return parseVar(build.toString());
-        }
-    }
-
-    @CheckReturnValue
-    @Nonnull
     private Object parseNumber() throws ParsingException {
         double build = 0;
         int real = -1;
@@ -274,10 +283,10 @@ public class TokenParser {
                     throw new ParsingException("A number can not have two dots", 190);
                 real = pos;
             } else {
-                pos--;
                 break;
             }
         }
+        pos--;
         if (real > -1)
             build /= Math.pow(10.0, pos - real);
         return build;

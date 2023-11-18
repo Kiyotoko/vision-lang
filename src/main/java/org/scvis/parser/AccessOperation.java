@@ -26,33 +26,10 @@ package org.scvis.parser;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.parser.NameSpace.resolved;
-
-@Immutable
-public class ComparisonOperator implements Operator {
-
-    public static final @Nonnull Operator EQUALS = new ComparisonOperator((a, b) -> resolved(a).equals(resolved(b)));
-
-    public static final @Nonnull Operator NOT_EQUALS =
-            new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));
-
-    private final @Nonnull AccessBiFunction<Object, Object, Boolean> predicate;
-
-    protected ComparisonOperator(@Nonnull AccessBiFunction<Object, Object, Boolean> predicate) {
-        this.predicate = predicate;
-    }
-
+@FunctionalInterface
+public interface AccessOperation {
     @CheckReturnValue
     @Nonnull
-    @Override
-    public Boolean evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
-        return predicate.apply(left, right);
-    }
-
-    @Override
-    public int priority() {
-        return 15;
-    }
+    String access(@Nonnull NameSpace nameSpace) throws AccessException;
 }

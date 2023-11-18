@@ -24,35 +24,48 @@
 
 package org.scvis.parser;
 
-import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-
-import static org.scvis.parser.NameSpace.resolved;
+import java.util.Iterator;
 
 @Immutable
-public class ComparisonOperator implements Operator {
+public class Range implements Iterable<Double> {
+    private final double start;
+    private final double step;
+    private final double stop;
 
-    public static final @Nonnull Operator EQUALS = new ComparisonOperator((a, b) -> resolved(a).equals(resolved(b)));
-
-    public static final @Nonnull Operator NOT_EQUALS =
-            new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));
-
-    private final @Nonnull AccessBiFunction<Object, Object, Boolean> predicate;
-
-    protected ComparisonOperator(@Nonnull AccessBiFunction<Object, Object, Boolean> predicate) {
-        this.predicate = predicate;
+    public Range(double start, double step, double stop) {
+        this.start = start;
+        this.step = step;
+        this.stop = stop;
     }
 
-    @CheckReturnValue
+    public Range(double stop) {
+        this(0, Math.signum(stop), stop);
+    }
+
+    private class RangeIterator implements Iterator<Double> {
+        private double current = start;
+
+        @Override
+        public boolean hasNext() {
+            return current < stop;
+        }
+
+        @Override
+        public Double next() {
+            return current += step;
+        }
+    }
+
+    public boolean contains(double value) {
+        if (value < start || value >= stop) return false;
+        return (value - start) % step == 0;
+    }
+
     @Nonnull
     @Override
-    public Boolean evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
-        return predicate.apply(left, right);
-    }
-
-    @Override
-    public int priority() {
-        return 15;
+    public Iterator<Double> iterator() {
+        return new RangeIterator();
     }
 }

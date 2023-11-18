@@ -24,12 +24,17 @@
 
 package org.scvis.parser;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import org.junit.jupiter.api.Test;
 
-@FunctionalInterface
-public interface AccessOperator {
-    @CheckReturnValue
-    @Nonnull
-    String access(@Nonnull NameSpace nameSpace) throws AccessException;
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestRange {
+
+    @Test
+    void contains() {
+        assertTrue(new Range(10).contains(1));
+        assertTrue(new Range(3, 1.5, 16).contains(7.5));
+        assertFalse(new Range(8).contains(10));
+        assertFalse(new Range(8).contains(7.6));
+    }
 }

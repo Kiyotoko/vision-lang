@@ -28,8 +28,8 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.parser.NameSpace.unresolved;
 import static org.scvis.parser.NameSpace.resolved;
+import static org.scvis.parser.NameSpace.unresolved;
 
 @Immutable
 public class DeclarationOperator implements Operator {
@@ -49,16 +49,16 @@ public class DeclarationOperator implements Operator {
             new DeclarationOperator((a, b) -> ((n) -> n.changeBy(unresolved(a).source(), b,
                     BinaryOperator.DIV::evaluate)));
 
-    private final @Nonnull AccessBiFunction<Object, Object, AccessOperator> function;
+    private final @Nonnull AccessBiFunction<Object, Object, AccessOperation> function;
 
-    protected DeclarationOperator(@Nonnull AccessBiFunction<Object, Object, AccessOperator> function) {
+    protected DeclarationOperator(@Nonnull AccessBiFunction<Object, Object, AccessOperation> function) {
         this.function = function;
     }
 
     @CheckReturnValue
     @Nonnull
     @Override
-    public AccessOperator evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
+    public AccessOperation evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
         return function.apply(left, right);
     }
 

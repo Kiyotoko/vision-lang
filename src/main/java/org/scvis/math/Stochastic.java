@@ -6,7 +6,7 @@ public final class Stochastic {
         throw new UnsupportedOperationException();
     }
 
-    public static double factorial(int n) {
+    public static double factorial(short n) {
         double sum = 1;
         while (n > 0) {
             sum *= n;
@@ -15,23 +15,23 @@ public final class Stochastic {
         return sum;
     }
 
-    public static double binom(int n, int k) {
-        return factorial(n) / (factorial(k) * factorial(n - k));
+    public static double binom(short n, short k) {
+        return factorial(n) / (factorial(k) * factorial((short) (n - k)));
     }
 
-    public static double combU(int n, int k) {
+    public static double combU(short n, short k) {
         return binom(n, k);
     }
 
-    public static double combA(int n, int k) {
-        return binom(n + k - 1, k);
+    public static double combA(short n, short k) {
+        return binom((short) (n + k - 1), k);
     }
 
-    public static double bernoulliPdf(double p, int n, int k) {
+    public static double bernoulliPdf(double p, short n, short k) {
         return binom(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
     }
 
-    public static double bernoulliCdf(double p, int n, int min, int max) {
+    public static double bernoulliCdf(double p, short n, short min, short max) {
         double sum = 0;
         while (min <= max) {
             sum += bernoulliPdf(p, n, min);
@@ -40,9 +40,9 @@ public final class Stochastic {
         return sum;
     }
 
-    public static int minimalAttempts(double p, double min, int n) {
-        double sum = bernoulliPdf(p, n, 0);
-        int k = 0;
+    public static short minimalAttempts(double p, double min, short n) {
+        double sum = bernoulliPdf(p, n, (short) 0);
+        short k = 0;
         while (sum < min) {
             sum += bernoulliPdf(p, n, ++k);
         }

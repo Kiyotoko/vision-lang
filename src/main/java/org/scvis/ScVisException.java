@@ -33,9 +33,8 @@ public class ScVisException extends Exception {
     }
 
     public void checkForRange(int a, int b) {
-        if (errorCode < a || errorCode > b) throw new IllegalArgumentException(
-                "Error codes for this exception should be in the range of ["+a+":"+b+"], got " + errorCode
-        );
+        if (errorCode < a || errorCode > b) throw new AssertionError(
+                "Error codes for this exception should be in the range of [" + a + ":" + b + "], got " + errorCode);
     }
 
     public int getErrorCode() {

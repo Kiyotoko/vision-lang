@@ -65,7 +65,7 @@ public class TokenEvaluator {
         int i = 0;
         for (Object token : tokens) {
             if (i % 2 == 0) {
-                values.add(token instanceof AccessOperator ? ((AccessOperator) token).access(nameSpace) : token);
+                values.add(token instanceof AccessOperation ? ((AccessOperation) token).access(nameSpace) : token);
             } else if (token != Operator.SEPARATOR)
                 throw new EvaluationException("Expected separator, got " + token.getClass().getSimpleName(), 220);
             i++;
