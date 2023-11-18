@@ -24,31 +24,12 @@
 
 package org.scvis.parser;
 
-import java.util.List;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
-import static org.scvis.parser.NameSpace.resolved;
-
-public interface Callable {
-
-    @SuppressWarnings("unchecked")
-    static <T> T obj(List<Object> args, int index) throws AccessException {
-        if (index >= args.size())
-            throw new AccessException("Argument " + index + " is missing", 330);
-        try {
-            return (T) resolved(args.get(index));
-        } catch (ClassCastException e) {
-            throw new AccessException(e);
-        }
-    }
-
-    static Number num(List<Object> args, int index) throws AccessException {
-        if (index >= args.size())
-            throw new AccessException("Argument " + index + " is missing", 330);
-        Object num = resolved(args.get(index));
-        if (!(num instanceof Number))
-            throw new AccessException("Argument " + index + " is not an instance of number", 340);
-        return (Number) num;
-    }
-
-    Object call(List<Object> args) throws AccessException;
+@FunctionalInterface
+public interface AccessBiFunction<L, R, O> {
+    @CheckReturnValue
+    @Nonnull
+    O apply(@Nonnull L left, @Nonnull R right) throws AccessException;
 }

@@ -30,7 +30,6 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * TokenParser parses a string into tokens and operators. The tokens contain all operators.
@@ -40,21 +39,14 @@ import java.util.Map;
  */
 public class TokenParser {
 
-    /**
-     * A map of all characters to its corresponding value. You can add or change this mapping for your own purpose.
-     */
-    public static final @Nonnull Map<Character, Operator> CHARACTER_OPERATOR_MAP = Map.of(
-            '+', BinaryOperator.OperatorAndSign.ADD, '-', BinaryOperator.OperatorAndSign.SUB, '*', BinaryOperator.MUL,
-            '/', BinaryOperator.DIV, '%', BinaryOperator.MOD, '^', BinaryOperator.POW,
-            ',', Operator.SEPARATOR, ';', Operator.SEPARATOR);
-
-    private int pos;
-
     private final @Nonnull List<Operator> operators = new ArrayList<>();
 
     private final @Nonnull List<Object> tokens = new ArrayList<>();
 
     private final @Nonnull NameSpace nameSpace = NameSpace.buildIns();
+
+    private char[] chars;
+    private int pos;
 
     /**
      * Parses a string from the beginning and stores the tokens.
@@ -76,34 +68,56 @@ public class TokenParser {
             AccessException {
         if (start < 0)
             throw new ParsingException("Start index must >= 0", 100);
-        for (pos = start; pos < chars.length; pos++) {
+        for (this.chars = chars, pos = start; pos < chars.length; pos++) {
             char c = chars[pos];
             if (Character.isDigit(c) || c == '.') {
-                tokens.add(parseNumber(chars));
+                tokens.add(parseNumber());
             } else if (Character.isAlphabetic(c)) {
-                tokens.add(parseText(chars));
-            } else if (CHARACTER_OPERATOR_MAP.containsKey(c)) {
-                Operator operator = CHARACTER_OPERATOR_MAP.get(c);
-                operators.add(operator);
-                tokens.add(operator);
+                tokens.add(parseText());
             } else { // Parse one specified char or throw an exception
                 switch (c) {
-                    case '!':
-                        applyFactorial();
+                    case ',':
+                    case ';':
+                        addOperator(Operator.SEPARATOR);
                         break;
                     case '"':
                     case '\'':
-                        tokens.add(parseString(chars));
+                        tokens.add(parseString());
                         break;
                     case '(':
-                        tokens.add(parseBrackets(chars));
+                        tokens.add(parseBrackets());
                         break;
                     case '[':
-                        tokens.add(parseArray(chars));
+                        tokens.add(parseArray());
                         break;
                     case ')':
                     case ']':
                         return;
+                    case '=':
+                        addOperator(ifNextIs('=') ? ComparisonOperator.EQUALS : DeclarationOperator.DECLARE);
+                        break;
+                    case '+':
+                        addOperator(ifNextIs('=') ? DeclarationOperator.ADD_TO : BinaryOperator.OperatorAndSign.ADD);
+                        break;
+                    case '-':
+                        addOperator(ifNextIs('=') ? DeclarationOperator.SUB_TO : BinaryOperator.OperatorAndSign.SUB);
+                        break;
+                    case '*':
+                        addOperator(ifNextIs('=') ? DeclarationOperator.MUL_TO : BinaryOperator.MUL);
+                        break;
+                    case '/':
+                        addOperator(ifNextIs('=') ? DeclarationOperator.DIV_TO : BinaryOperator.DIV);
+                        break;
+                    case '^':
+                        addOperator(BinaryOperator.POW);
+                        break;
+                    case '%':
+                        addOperator(BinaryOperator.MOD);
+                        break;
+                    case '!':
+                        if (getNext() == '=') addOperator(ComparisonOperator.NOT_EQUALS);
+                        else applyFactorial();
+                        break;
                     case ' ':
                         break;
                     default:
@@ -130,6 +144,28 @@ public class TokenParser {
         operators.add(Operator.SEPARATOR);
     }
 
+    public void addOperator(Operator operator) {
+        tokens.add(operator);
+        operators.add(operator);
+    }
+
+    @CheckReturnValue
+    private char getNext() throws ParsingException {
+        int index = pos + 1;
+        if (index >= chars.length)
+            throw new ParsingException("", 199);
+        return chars[index];
+    }
+
+    @CheckReturnValue
+    private boolean ifNextIs(char c) throws ParsingException {
+        if (getNext() == c) {
+            pos++;
+            return true;
+        }
+        return false;
+    }
+
     private void applyFactorial() throws ParsingException {
         int index = tokens.size() - 1;
         if (index < 0) throw new ParsingException("Factorial requires a left value", 150);
@@ -143,16 +179,13 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseVar(@Nonnull String name) throws ParsingException {
-        Object variable = nameSpace.get(name.toLowerCase());
-        if (variable == null)
-            throw new ParsingException("No variable found for " + name, 160);
-        return variable;
+    private Object parseVar(@Nonnull String name) {
+        return nameSpace.get(name.toLowerCase());
     }
 
     @CheckReturnValue
     @Nonnull
-    private TokenParser parseSubTokens(@Nonnull char[] chars)
+    private TokenParser parseSubTokens()
             throws ParsingException, EvaluationException, AccessException {
         TokenParser parser = new TokenParser();
         parser.tokenize(chars, pos + 1);
@@ -162,8 +195,8 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseBrackets(@Nonnull char[] chars) throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = parseSubTokens(chars);
+    private Object parseBrackets() throws ParsingException, EvaluationException, AccessException {
+        TokenParser parser = parseSubTokens();
         List<Object> values = new TokenEvaluator(parser.operators, parser.tokens).evaluate();
         if (values.size() != 1) {
             throw new ParsingException("Brackets wrap one effective value, got " + values.size(), 170);
@@ -173,10 +206,10 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseFunction(@Nonnull String name, @Nonnull char[] chars)
+    private Object parseFunction(@Nonnull String name)
             throws ParsingException, AccessException, EvaluationException {
-        TokenParser parser = parseSubTokens(chars);
-        Object function = nameSpace.get(name);
+        TokenParser parser = parseSubTokens();
+        Object function = nameSpace.get(name).resolve();
         if (function instanceof Callable) {
             try {
                 return ((Callable) function).call(new TokenEvaluator(parser.operators, parser.tokens).evaluate());
@@ -190,14 +223,14 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseArray(@Nonnull char[] chars) throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = parseSubTokens(chars);
+    private Object parseArray() throws ParsingException, EvaluationException, AccessException {
+        TokenParser parser = parseSubTokens();
         return new TokenEvaluator(parser.operators, parser.tokens).evaluate();
     }
 
     @CheckReturnValue
     @Nonnull
-    private Object parseString(@Nonnull char[] chars) {
+    private Object parseString() {
         char intro = chars[pos++];
         StringBuilder build = new StringBuilder();
         for (; pos < chars.length; pos++) {
@@ -211,7 +244,7 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseText(@Nonnull char[] chars) throws ParsingException, EvaluationException, AccessException {
+    private Object parseText() throws ParsingException, EvaluationException, AccessException {
         StringBuilder build = new StringBuilder();
         for (; pos < chars.length; pos++) {
             char c = chars[pos];
@@ -220,7 +253,7 @@ public class TokenParser {
             else break;
         }
         if (pos < chars.length && chars[pos] == '(') {
-            return parseFunction(build.toString(), chars);
+            return parseFunction(build.toString());
         } else {
             pos--;
             return parseVar(build.toString());
@@ -229,7 +262,7 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseNumber(@Nonnull char[] chars) throws ParsingException {
+    private Object parseNumber() throws ParsingException {
         double build = 0;
         int real = -1;
         for (; pos < chars.length; pos++) {

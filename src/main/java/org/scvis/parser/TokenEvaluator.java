@@ -10,6 +10,7 @@ public class TokenEvaluator {
 
     private final @Nonnull List<Operator> operators;
     private final @Nonnull List<Object> tokens;
+    private final @Nonnull NameSpace nameSpace = NameSpace.buildIns();
 
     public TokenEvaluator(@Nonnull List<Operator> operators, @Nonnull List<Object> tokens) {
         this.operators = operators;
@@ -63,8 +64,9 @@ public class TokenEvaluator {
         ArrayList<Object> values = new ArrayList<>(tokens.size() / 2 + 1);
         int i = 0;
         for (Object token : tokens) {
-            if (i % 2 == 0) values.add(token);
-            else if (token != Operator.SEPARATOR)
+            if (i % 2 == 0) {
+                values.add(token instanceof AccessOperator ? ((AccessOperator) token).access(nameSpace) : token);
+            } else if (token != Operator.SEPARATOR)
                 throw new EvaluationException("Expected separator, got " + token.getClass().getSimpleName(), 220);
             i++;
         }

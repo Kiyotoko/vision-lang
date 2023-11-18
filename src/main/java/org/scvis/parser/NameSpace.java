@@ -24,10 +24,13 @@
 
 package org.scvis.parser;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
+
+import static org.scvis.parser.Callable.num;
 
 public class NameSpace {
 
@@ -57,43 +60,75 @@ public class NameSpace {
         BUILD_INS.declare("tau", TAU);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> T obj(List<Object> args, int index) throws AccessException {
-        if (index >= args.size())
-            throw new AccessException("Argument " + index + " is missing", 330);
-        try {
-            return (T) args.get(index);
-        } catch (ClassCastException e) {
-            throw new AccessException(e);
+    @CheckReturnValue
+    @Nonnull
+    public static Object resolved(@Nonnull Object obj) throws AccessException {
+        if (obj instanceof Resolvable)
+            return ((Resolvable) obj).resolve();
+        return obj;
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public static Resolvable unresolved(@Nonnull Object obj) throws AccessException {
+        if (obj instanceof Resolvable)
+            return (Resolvable) obj;
+        throw new AccessException("", 370);
+    }
+
+    @Immutable
+    public class Unresolved implements Resolvable {
+        private final @Nonnull String name;
+
+        Unresolved(@Nonnull String name) {
+            this.name = name;
+        }
+
+        @CheckReturnValue
+        @Nonnull
+        @Override
+        public Object resolve() throws AccessException {
+            Object value = variables.get(name);
+            if (value == null) throw new AccessException("No value for " + name, 380);
+            return value;
+        }
+
+        @CheckReturnValue
+        @Nonnull
+        @Override
+        public String source() {
+            return name;
         }
     }
 
-    private static Number num(List<Object> args, int index) throws AccessException {
-        if (index >= args.size())
-            throw new AccessException("Argument " + index + " is missing", 330);
-        Object num = args.get(index);
-        if (!(num instanceof Number))
-            throw new AccessException("Argument " + index + " is not an instance of number", 340);
-        return (Number) num;
-    }
-
-    private static class Undeclared {
-        private static final Object UNDECLARED = new Undeclared();
-    }
-
+    @CheckReturnValue
+    @Nonnull
     public static NameSpace buildIns() {
         return BUILD_INS;
     }
 
-    final @Nonnull Map<String, Object> variables = new HashMap<>();
+    private final @Nonnull Map<String, Object> variables = new HashMap<>();
 
-    public void declare(@Nonnull String name, @Nonnull Object value) {
+    @Nonnull
+    public String declare(@Nonnull String name, @Nonnull Object value) {
         variables.put(name, value);
+        return name + " = " + value;
     }
 
-    public Object get(@Nonnull String name) {
-        Object variable = variables.get(name);
-        if (variable == null) return Undeclared.UNDECLARED;
-        return variable;
+    @Nonnull
+    public String changeBy(@Nonnull String name, @Nonnull Object value, @Nonnull
+    AccessBiFunction<Object, Object, Object> operator)
+            throws AccessException {
+        Object present = variables.get(name);
+        if (present == null) throw new AccessException("No value for " + name, 380);
+        Object next = operator.apply(present, value);
+        variables.put(name, next);
+        return name + " -> " + next;
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public Unresolved get(@Nonnull String name) {
+        return new Unresolved(name);
     }
 }

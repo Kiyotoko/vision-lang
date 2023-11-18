@@ -24,36 +24,15 @@
 
 package org.scvis.parser;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.function.Function;
 
-public class Structure implements Accessible {
-
-    private final @Nonnull NameSpace nameSpace = new NameSpace();
-
-    private static void ae(String name) throws AccessException {
-        throw new AccessException("Can not access " + name + ", field missing", 310);
-    }
-
+public interface Resolvable {
+    @CheckReturnValue
     @Nonnull
-    @Override
-    public Object access(@Nonnull String name) throws AccessException {
-        Object present = nameSpace.get(name);
-        if (present == null) ae(name);
-        return present;
-    }
+    Object resolve() throws AccessException;
 
-    @Override
-    public void mod(@Nonnull String name, @Nonnull Object value) throws AccessException {
-        Object present = nameSpace.get(name);
-        if (present == null) ae(name);
-        nameSpace.declare(name, value);
-    }
-
-    @Override
-    public void mod(@Nonnull String name, @Nonnull Function<Object, Object> function) throws AccessException {
-        Object present = nameSpace.get(name);
-        if (present == null) ae(name);
-        nameSpace.declare(name, function.apply(present));
-    }
+    @CheckReturnValue
+    @Nonnull
+    String source();
 }

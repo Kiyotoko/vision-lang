@@ -24,14 +24,34 @@
 
 package org.scvis.parser;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.function.Function;
+import javax.annotation.concurrent.Immutable;
 
-public interface Accessible {
+import static org.scvis.parser.NameSpace.resolved;
+
+@Immutable
+public class ComparisonOperator implements Operator {
+
+    public static final @Nonnull Operator EQUALS = new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));
+
+    public static final @Nonnull Operator NOT_EQUALS = new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));
+
+    private final @Nonnull AccessBiFunction<Object, Object, Boolean> predicate;
+
+    protected ComparisonOperator(@Nonnull AccessBiFunction<Object, Object, Boolean> predicate) {
+        this.predicate = predicate;
+    }
+
+    @CheckReturnValue
     @Nonnull
-    Object access(@Nonnull String name) throws AccessException;
+    @Override
+    public Boolean evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
+        return predicate.apply(left, right);
+    }
 
-    void mod(@Nonnull String name, @Nonnull Object value) throws AccessException;
-
-    void mod(@Nonnull String name, @Nonnull Function<Object, Object> function) throws AccessException;
+    @Override
+    public int priority() {
+        return 15;
+    }
 }

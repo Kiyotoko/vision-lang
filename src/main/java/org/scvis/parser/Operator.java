@@ -27,6 +27,8 @@ package org.scvis.parser;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import static org.scvis.parser.NameSpace.resolved;
+
 /**
  * An operator always evaluates two values and returns a new value. Therefore, <char>!</char> is not an operator,
  * because it only evaluates one value. Each operator can also be a sign. A sign can take <code>0</code> as a left value
@@ -55,6 +57,26 @@ public interface Operator extends Comparable<Operator> {
         }
     };
 
+    @CheckReturnValue
+    @Nonnull
+    @SuppressWarnings("unchecked")
+    static <T> T obj(@Nonnull Object arg) throws AccessException {
+        try {
+            return (T) resolved(arg);
+        } catch (ClassCastException e) {
+            throw new AccessException(e);
+        }
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    static Number num(@Nonnull Object arg) throws AccessException {
+        Object num = resolved(arg);
+        if (!(num instanceof Number))
+            throw new AccessException("Argument " + arg + " is not an instance of number", 340);
+        return (Number) num;
+    }
+
     /**
      * Evaluates the left and right value and returns the new value.
      *
@@ -64,7 +86,7 @@ public interface Operator extends Comparable<Operator> {
      */
     @CheckReturnValue
     @Nonnull
-    Object evaluate(@Nonnull Object left, @Nonnull Object right) throws ClassCastException;
+    Object evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException;
 
     /**
      * The priority is the sequence, in which the values are evaluated.
