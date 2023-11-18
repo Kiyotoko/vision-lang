@@ -29,6 +29,8 @@ public class TokenEvaluator {
         int index = tokens.indexOf(operator);
         if (index == -1)
             throw new EvaluationException("Operator must be present in tokens", 200);
+        if (index == tokens.size() - 1)
+            throw new EvaluationException("A right value must exist", 230);
         if (index == 0) {
             Object right = tokens.get(1);
             if (operator instanceof Sign) {

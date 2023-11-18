@@ -27,5 +27,5 @@ package org.scvis.parser;
 import java.util.List;
 
 public interface Callable {
-    Object call(List<Object> args) throws ClassCastException;
+    Object call(List<Object> args) throws AccessException;
 }

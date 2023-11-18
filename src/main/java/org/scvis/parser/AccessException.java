@@ -33,7 +33,7 @@ public class AccessException extends ScVisException {
         checkForRange(300, 399);
     }
 
-    public AccessException(ClassCastException exception) {
+    public AccessException(Exception exception) {
         super(exception.getMessage(), 300);
     }
 }

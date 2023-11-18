@@ -46,7 +46,7 @@ public class TokenParser {
     public static final @Nonnull Map<Character, Operator> CHARACTER_OPERATOR_MAP = Map.of(
             '+', BinaryOperator.OperatorAndSign.ADD, '-', BinaryOperator.OperatorAndSign.SUB, '*', BinaryOperator.MUL,
             '/', BinaryOperator.DIV, '%', BinaryOperator.MOD, '^', BinaryOperator.POW,
-            ',', Operator.SEPARATOR, ';', Operator.SEPARATOR, '=', BinaryOperator.EQU);
+            ',', Operator.SEPARATOR, ';', Operator.SEPARATOR);
 
     private int pos;
 
@@ -238,7 +238,7 @@ public class TokenParser {
                 build = build * 10.0 + Character.digit(c, 10);
             } else if (c == '.') {
                 if (real > -1)
-                    throw new ParsingException("Could not parse number by " + c, 190);
+                    throw new ParsingException("A number can not have two dots", 190);
                 real = pos;
             } else {
                 pos--;
@@ -246,7 +246,7 @@ public class TokenParser {
             }
         }
         if (real > -1)
-            build /= Math.pow(10.0, pos - real - 1);
+            build /= Math.pow(10.0, pos - real);
         return build;
     }
 

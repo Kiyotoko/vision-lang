@@ -27,6 +27,7 @@ package org.scvis.parser;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class NameSpace {
 
@@ -40,20 +41,40 @@ public class NameSpace {
 
     static {
         // From java.lang.Math
-        BUILD_INS.declare("sin", (Callable) args -> Math.sin((double) args.get(0)));
-        BUILD_INS.declare("cos", (Callable) args -> Math.cos((double) args.get(0)));
-        BUILD_INS.declare("tan", (Callable) args -> Math.tan((double) args.get(0)));
-        BUILD_INS.declare("asin", (Callable) args -> Math.asin((double) args.get(0)));
-        BUILD_INS.declare("acos", (Callable) args -> Math.acos((double) args.get(0)));
-        BUILD_INS.declare("atan", (Callable) args -> Math.atan((double) args.get(0)));
-        BUILD_INS.declare("sqrt", (Callable) args -> Math.sqrt((double) args.get(0)));
-        BUILD_INS.declare("abs", (Callable) args -> Math.abs((double) args.get(0)));
-        BUILD_INS.declare("signum", (Callable) args -> Math.signum((double) args.get(0)));
-        BUILD_INS.declare("hypot", (Callable) args -> Math.hypot((double) args.get(0), (double) args.get(0)));
+        BUILD_INS.declare("sin", (Callable) args -> Math.sin(num(args, 0).doubleValue()));
+        BUILD_INS.declare("cos", (Callable) args -> Math.cos(num(args, 0).doubleValue()));
+        BUILD_INS.declare("tan", (Callable) args -> Math.tan(num(args, 0).doubleValue()));
+        BUILD_INS.declare("asin", (Callable) args -> Math.asin(num(args, 0).doubleValue()));
+        BUILD_INS.declare("acos", (Callable) args -> Math.acos(num(args, 0).doubleValue()));
+        BUILD_INS.declare("atan", (Callable) args -> Math.atan(num(args, 0).doubleValue()));
+        BUILD_INS.declare("sqrt", (Callable) args -> Math.sqrt(num(args, 0).doubleValue()));
+        BUILD_INS.declare("abs", (Callable) args -> Math.abs(num(args, 0).doubleValue()));
+        BUILD_INS.declare("signum", (Callable) args -> Math.signum(num(args, 0).doubleValue()));
+        BUILD_INS.declare("hypot", (Callable) args -> Math.hypot(num(args, 0).doubleValue(), num(args, 1).doubleValue()));
 
         BUILD_INS.declare("pi", Math.PI);
         BUILD_INS.declare("e", Math.E);
         BUILD_INS.declare("tau", TAU);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T obj(List<Object> args, int index) throws AccessException {
+        if (index >= args.size())
+            throw new AccessException("Argument " + index + " is missing", 330);
+        try {
+            return (T) args.get(index);
+        } catch (ClassCastException e) {
+            throw new AccessException(e);
+        }
+    }
+
+    private static Number num(List<Object> args, int index) throws AccessException {
+        if (index >= args.size())
+            throw new AccessException("Argument " + index + " is missing", 330);
+        Object num = args.get(index);
+        if (!(num instanceof Number))
+            throw new AccessException("Argument " + index + " is not an instance of number", 340);
+        return (Number) num;
     }
 
     private static class Undeclared {
