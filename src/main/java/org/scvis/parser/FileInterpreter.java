@@ -24,48 +24,13 @@
 
 package org.scvis.parser;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-import java.util.Iterator;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-@Immutable
-public class Range implements Iterable<Double> {
-    private final double start;
-    private final double step;
-    private final double stop;
+public class FileInterpreter {
+    private final TokenParser parser = new TokenParser(new BuildInLib());
 
-    public Range(double start, double step, double stop) {
-        this.start = start;
-        this.step = step;
-        this.stop = stop;
-    }
-
-    public Range(double stop) {
-        this(0, Math.signum(stop), stop);
-    }
-
-    private class RangeIterator implements Iterator<Double> {
-        private double current = start;
-
-        @Override
-        public boolean hasNext() {
-            return current < stop;
-        }
-
-        @Override
-        public Double next() {
-            return current += step;
-        }
-    }
-
-    public boolean contains(double value) {
-        if (value < start || value >= stop) return false;
-        return (value - start) % step == 0;
-    }
-
-    @Nonnull
-    @Override
-    public Iterator<Double> iterator() {
-        return new RangeIterator();
+    FileInterpreter(FileInputStream stream) throws IOException, AccessException, ParsingException, EvaluationException {
+        parser.tokenize(new String(stream.readAllBytes()));
     }
 }

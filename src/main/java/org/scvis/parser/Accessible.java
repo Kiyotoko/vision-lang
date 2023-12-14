@@ -24,17 +24,13 @@
 
 package org.scvis.parser;
 
-import org.junit.jupiter.api.Test;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
-import static org.junit.jupiter.api.Assertions.*;
+public interface Accessible {
+    @CheckReturnValue
+    @Nonnull
+    Object get(String name);
 
-class TestRange {
-
-    @Test
-    void contains() {
-        assertTrue(new Range(10).contains(1));
-        assertTrue(new Range(3, 1.5, 16).contains(7.5));
-        assertFalse(new Range(8).contains(10));
-        assertFalse(new Range(8).contains(7.6));
-    }
+    void set(@Nonnull String name, @Nonnull Object value);
 }

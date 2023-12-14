@@ -24,12 +24,10 @@
 
 package org.scvis.parser;
 
-import javax.annotation.CheckReturnValue;
+import org.scvis.parser.NameSpace;
+
 import javax.annotation.Nonnull;
 
-@FunctionalInterface
-public interface AccessOperation {
-    @CheckReturnValue
-    @Nonnull
-    String access(@Nonnull NameSpace nameSpace) throws AccessException;
+public interface Statement {
+    void execute(@Nonnull NameSpace space) throws AccessException;
 }

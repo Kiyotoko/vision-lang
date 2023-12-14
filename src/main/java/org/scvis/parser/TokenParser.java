@@ -43,10 +43,14 @@ public class TokenParser {
 
     private final @Nonnull List<Object> tokens = new ArrayList<>();
 
-    private final @Nonnull NameSpace nameSpace = NameSpace.buildIns();
+    private final @Nonnull NameSpace nameSpace;
 
     private char[] chars;
     private int pos;
+
+    public TokenParser(@Nonnull NameSpace nameSpace) {
+        this.nameSpace = nameSpace;
+    }
 
     /**
      * Parses a string from the beginning and stores the tokens.
@@ -130,7 +134,8 @@ public class TokenParser {
     /**
      * Call this method always if you want to parse multiple strings. If not, this may raise an exception.
      *
-     * @throws ParsingException TODO
+     * @throws ParsingException if no tokens where parsed, the last token or operator is a separator or if the size of
+     * tokens and operators do not match.
      */
     public void chain() throws ParsingException {
         if (tokens.isEmpty())
@@ -212,7 +217,7 @@ public class TokenParser {
         Object function = working.get(name).resolve();
         if (function instanceof Callable) {
             try {
-                return ((Callable) function).call(new TokenEvaluator(parser.operators, parser.tokens).evaluate());
+                return ((Callable) function).call(new TokenEvaluator(working, parser.operators, parser.tokens).evaluate());
             } catch (ClassCastException e) {
                 throw new AccessException(e);
             }
@@ -231,7 +236,7 @@ public class TokenParser {
     @Nonnull
     private TokenParser parseSubTokens()
             throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser();
+        TokenParser parser = new TokenParser(nameSpace);
         parser.tokenize(chars, pos + 1);
         pos = parser.pos;
         return parser;
@@ -241,7 +246,7 @@ public class TokenParser {
     @Nonnull
     private Object parseBrackets() throws ParsingException, EvaluationException, AccessException {
         TokenParser parser = parseSubTokens();
-        List<Object> values = new TokenEvaluator(parser.operators, parser.tokens).evaluate();
+        List<Object> values = new TokenEvaluator(nameSpace, parser.operators, parser.tokens).evaluate();
         if (values.size() != 1) {
             throw new ParsingException("Brackets wrap one effective value, got " + values.size(), 170);
         }
@@ -252,7 +257,7 @@ public class TokenParser {
     @Nonnull
     private Object parseArray() throws ParsingException, EvaluationException, AccessException {
         TokenParser parser = parseSubTokens();
-        return new TokenEvaluator(parser.operators, parser.tokens).evaluate();
+        return new TokenEvaluator(nameSpace, parser.operators, parser.tokens).evaluate();
     }
 
     @CheckReturnValue
@@ -271,13 +276,13 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseNumber() throws ParsingException {
-        double build = 0;
+    private Number parseNumber() throws ParsingException {
+        long build = 0;
         int real = -1;
         for (; pos < chars.length; pos++) {
             char c = chars[pos];
             if (Character.isDigit(c)) {
-                build = build * 10.0 + Character.digit(c, 10);
+                build = build * 10 + Character.digit(c, 10);
             } else if (c == '.') {
                 if (real > -1)
                     throw new ParsingException("A number can not have two dots", 190);
@@ -287,8 +292,11 @@ public class TokenParser {
             }
         }
         pos--;
-        if (real > -1)
-            build /= Math.pow(10.0, pos - real);
+        if (real > -1) {
+            @SuppressWarnings("all")
+            var power = Math.pow(10.0, pos - real);
+            return build * power;
+        }
         return build;
     }
 

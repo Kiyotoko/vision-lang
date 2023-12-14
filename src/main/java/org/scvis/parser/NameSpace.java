@@ -24,61 +24,13 @@
 
 package org.scvis.parser;
 
-import org.scvis.math.Stochastic;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.scvis.parser.Callable.num;
-import static org.scvis.parser.Callable.obj;
-
-public class NameSpace {
-
-    private static final NameSpace BUILD_INS = new NameSpace();
-
-    /**
-     * This constant is currently not available in java 11. You can find <a
-     * href="https://bugs.openjdk.org/browse/JDK-8283136">here</a> more.
-     */
-    private static final double TAU = 6.283185307179586;
-
-    static {
-        // From java.lang.Math
-        BUILD_INS.declare("sin", (Callable) args -> Math.sin(num(args, 0).doubleValue()));
-        BUILD_INS.declare("cos", (Callable) args -> Math.cos(num(args, 0).doubleValue()));
-        BUILD_INS.declare("tan", (Callable) args -> Math.tan(num(args, 0).doubleValue()));
-        BUILD_INS.declare("asin", (Callable) args -> Math.asin(num(args, 0).doubleValue()));
-        BUILD_INS.declare("acos", (Callable) args -> Math.acos(num(args, 0).doubleValue()));
-        BUILD_INS.declare("atan", (Callable) args -> Math.atan(num(args, 0).doubleValue()));
-        BUILD_INS.declare("sqrt", (Callable) args -> Math.sqrt(num(args, 0).doubleValue()));
-        BUILD_INS.declare("abs", (Callable) args -> Math.abs(num(args, 0).doubleValue()));
-        BUILD_INS.declare("signum", (Callable) args -> Math.signum(num(args, 0).doubleValue()));
-        BUILD_INS.declare("hypot",
-                (Callable) args -> Math.hypot(num(args, 0).doubleValue(), num(args, 1).doubleValue()));
-
-        BUILD_INS.declare("pi", Math.PI);
-        BUILD_INS.declare("e", Math.E);
-        BUILD_INS.declare("tau", TAU);
-
-        BUILD_INS.declare("range", (Callable) args -> {
-            double sta = num(args, 0).doubleValue(), ste = num(args, 1).doubleValue(), sto =
-                    num(args, 2).doubleValue();
-            return new Range(sta, ste, sto);
-        });
-        BUILD_INS.declare("type", (Callable) args -> resolved(obj(args, 0)).getClass().getSimpleName());
-        BUILD_INS.declare("str", (Callable) args -> resolved(obj(args, 0)).toString());
-
-        NameSpace probability = new NameSpace();
-        probability.declare("fac", (Callable) args -> Stochastic.factorial(num(args, 0).shortValue()));
-        probability.declare("binom",
-                (Callable) args -> Stochastic.binom(num(args, 0).shortValue(), num(args, 1).shortValue()));
-        BUILD_INS.declare("probability", probability);
-    }
+public class NameSpace implements Accessible {
 
     @CheckReturnValue
     @Nonnull
@@ -121,29 +73,19 @@ public class NameSpace {
         }
     }
 
-    @CheckReturnValue
-    @Nonnull
-    public static NameSpace buildIns() {
-        return BUILD_INS;
-    }
-
     private final @Nonnull Map<String, Object> variables = new HashMap<>();
 
-    @Nonnull
-    public String declare(@Nonnull String name, @Nonnull Object value) {
+    @Override
+    public void set(@Nonnull String name, @Nonnull Object value) {
         variables.put(name, value);
-        return name + " = " + value;
     }
 
-    @Nonnull
-    public String changeBy(@Nonnull String name, @Nonnull Object value, @Nonnull
-    AccessBiFunction<Object, Object, Object> operator)
+    public void mod(@Nonnull String name, @Nonnull Object value, AccessBiFunction<Object, Object, Object> function)
             throws AccessException {
         Object present = variables.get(name);
-        if (present == null) throw new AccessException("No value for " + name, 380);
-        Object next = operator.apply(present, value);
-        variables.put(name, next);
-        return name + " -> " + next;
+        if (present == null)
+            throw new AccessException("", 399);
+        set(name, function.apply(present, value));
     }
 
     @CheckReturnValue

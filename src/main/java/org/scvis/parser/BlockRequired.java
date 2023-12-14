@@ -22,38 +22,17 @@
  * SOFTWARE.
  */
 
-package org.scvis;
-
-import org.scvis.parser.*;
+package org.scvis.parser;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.Iterator;
 import java.util.List;
 
-public class ScVis {
+public interface BlockRequired {
+    @CheckReturnValue
+    int count();
 
     @CheckReturnValue
     @Nonnull
-    public static List<Object> interpret(@Nonnull NameSpace nameSpace, @Nonnull String line)
-            throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser(nameSpace);
-        parser.tokenize(line);
-        return new TokenEvaluator(nameSpace, parser.getOperators(), parser.getTokens()).evaluate();
-    }
-
-    @CheckReturnValue
-    @Nonnull
-    public static List<Object> interpretAll(@Nonnull NameSpace nameSpace, @Nonnull Iterable<String> lines)
-            throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser(nameSpace);
-        Iterator<String> iterator = lines.iterator();
-        while (iterator.hasNext()) {
-            parser.tokenize(iterator.next());
-            if (iterator.hasNext()) {
-                parser.chain();
-            }
-        }
-        return new TokenEvaluator(nameSpace, parser.getOperators(), parser.getTokens()).evaluate();
-    }
+    List<CodeBlock> blocks();
 }

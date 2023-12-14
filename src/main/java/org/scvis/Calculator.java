@@ -25,6 +25,9 @@
 
 package org.scvis;
 
+import org.scvis.parser.BuildInLib;
+import org.scvis.parser.NameSpace;
+
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.Iterator;
@@ -32,6 +35,8 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class Calculator {
+
+    private final @Nonnull NameSpace nameSpace = new BuildInLib();
 
     private final @Nonnull InputStream input;
 
@@ -53,7 +58,8 @@ public class Calculator {
                 String line = scanner.nextLine();
                 if (Objects.equals(line, "exit")) break;
                 try {
-                    Iterator<Object> iterator = ScVis.interpret(line).listIterator();
+                    Iterator<Object> iterator = ScVis.interpret(nameSpace, line).listIterator();
+                    if (!iterator.hasNext()) continue;
                     StringBuilder builder = new StringBuilder();
                     while (iterator.hasNext()) {
                         builder.append(iterator.next());

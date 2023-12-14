@@ -35,30 +35,30 @@ import static org.scvis.parser.NameSpace.unresolved;
 public class DeclarationOperator implements Operator {
 
     public static final @Nonnull DeclarationOperator
-            DECLARE = new DeclarationOperator((a, b) -> ((n) -> n.declare(unresolved(a).source(), resolved(b))));
+            DECLARE = new DeclarationOperator((a, b) -> (n -> n.set(unresolved(a).source(), resolved(b))));
     public static final @Nonnull DeclarationOperator ADD_TO =
-            new DeclarationOperator((a, b) -> ((n) -> n.changeBy(unresolved(a).source(), b,
+            new DeclarationOperator((a, b) -> (n -> n.mod(unresolved(a).source(), b,
                     BinaryOperator.OperatorAndSign.ADD::evaluate)));
     public static final @Nonnull DeclarationOperator SUB_TO =
-            new DeclarationOperator((a, b) -> ((n) -> n.changeBy(unresolved(a).source(), b,
+            new DeclarationOperator((a, b) -> (n -> n.mod(unresolved(a).source(), b,
                     BinaryOperator.OperatorAndSign.SUB::evaluate)));
     public static final @Nonnull DeclarationOperator MUL_TO =
-            new DeclarationOperator((a, b) -> ((n) -> n.changeBy(unresolved(a).source(), b,
+            new DeclarationOperator((a, b) -> (n -> n.mod(unresolved(a).source(), b,
                     BinaryOperator.MUL::evaluate)));
     public static final @Nonnull DeclarationOperator DIV_TO =
-            new DeclarationOperator((a, b) -> ((n) -> n.changeBy(unresolved(a).source(), b,
+            new DeclarationOperator((a, b) -> (n -> n.mod(unresolved(a).source(), b,
                     BinaryOperator.DIV::evaluate)));
 
-    private final @Nonnull AccessBiFunction<Object, Object, AccessOperation> function;
+    private final @Nonnull AccessBiFunction<Object, Object, Statement> function;
 
-    protected DeclarationOperator(@Nonnull AccessBiFunction<Object, Object, AccessOperation> function) {
+    protected DeclarationOperator(@Nonnull AccessBiFunction<Object, Object, Statement> function) {
         this.function = function;
     }
 
     @CheckReturnValue
     @Nonnull
     @Override
-    public AccessOperation evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
+    public Statement evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
         return function.apply(left, right);
     }
 
