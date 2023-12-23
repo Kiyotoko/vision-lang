@@ -22,10 +22,14 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
+
+import org.scvis.parser.AccessException;
+import org.scvis.parser.EvaluationException;
+import org.scvis.parser.ParsingException;
 
 import javax.annotation.Nonnull;
 
 public interface Statement {
-    void execute(@Nonnull NameSpace space) throws AccessException, ParsingException, EvaluationException;
+    void execute(@Nonnull Namespace space) throws AccessException, ParsingException, EvaluationException;
 }

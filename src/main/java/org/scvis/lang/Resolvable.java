@@ -22,7 +22,9 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
+
+import org.scvis.parser.AccessException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

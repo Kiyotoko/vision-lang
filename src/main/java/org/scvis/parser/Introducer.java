@@ -24,6 +24,8 @@
 
 package org.scvis.parser;
 
+import org.scvis.lang.Statement;
+
 public interface Introducer {
     void introduce(Statement statement);
 }

@@ -29,7 +29,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.parser.Operator.num;
+import org.scvis.ScVis;
 
 /**
  * The <code>BaseOperator</code> class is a definition template for the default operators of values. It contains the
@@ -42,20 +42,20 @@ import static org.scvis.parser.Operator.num;
 public class BinaryOperator implements Operator {
 
     public static final @Nonnull Operator MUL =
-            new BinaryOperator((a, b) -> num(a).doubleValue() * num(b).doubleValue(), '*', 30);
+            new BinaryOperator((a, b) -> ScVis.asFloat(a) * ScVis.asFloat(b), '*', 30);
     public static final @Nonnull Operator DIV =
-            new BinaryOperator((a, b) -> num(a).doubleValue() / num(b).doubleValue(), '/', 30);
+            new BinaryOperator((a, b) -> ScVis.asFloat(a) / ScVis.asFloat(b), '/', 30);
     public static final @Nonnull Operator MOD =
-            new BinaryOperator((a, b) -> num(a).doubleValue() % num(b).doubleValue(), '%', 40);
+            new BinaryOperator((a, b) -> ScVis.asFloat(a) % ScVis.asFloat(b), '%', 40);
     public static final @Nonnull Operator POW =
-            new BinaryOperator((a, b) -> Math.pow(num(a).doubleValue(), num(b).doubleValue()), '^', 60);
+            new BinaryOperator((a, b) -> Math.pow(ScVis.asFloat(a), ScVis.asFloat(b)), '^', 60);
 
     @Immutable
     public static class OperatorAndSign extends BinaryOperator implements Sign {
         public static final @Nonnull Operator ADD =
-                new OperatorAndSign((a, b) -> num(a).doubleValue() + num(b).doubleValue(), '+', 20);
+                new OperatorAndSign((a, b) -> ScVis.asFloat(a) + ScVis.asFloat(b), '+', 20);
         public static final @Nonnull Operator SUB =
-                new OperatorAndSign((a, b) -> num(a).doubleValue() - num(b).doubleValue(), '-', 20);
+                new OperatorAndSign((a, b) -> ScVis.asFloat(a) - ScVis.asFloat(b), '-', 20);
 
         public OperatorAndSign(@Nonnull AccessBiFunction<Object, Object, Object> function, char representation,
                                int priority) {

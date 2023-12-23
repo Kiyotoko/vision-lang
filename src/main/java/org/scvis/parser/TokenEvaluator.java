@@ -1,18 +1,21 @@
 package org.scvis.parser;
 
+import org.scvis.lang.Namespace;
+import org.scvis.lang.Statement;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 public class TokenEvaluator {
 
     private final @Nonnull List<Operator> operators;
     private final @Nonnull List<Object> tokens;
-    private final @Nonnull NameSpace nameSpace;
+    private final @Nonnull Namespace nameSpace;
 
-    public TokenEvaluator(@Nonnull NameSpace nameSpace, @Nonnull List<Operator> operators, @Nonnull List<Object> tokens) {
+    public TokenEvaluator(@Nonnull Namespace nameSpace, @Nonnull List<Operator> operators, @Nonnull List<Object> tokens) {
         this.nameSpace = nameSpace;
         this.operators = operators;
         Collections.sort(operators);
@@ -58,20 +61,23 @@ public class TokenEvaluator {
         }
     }
 
+    /**
+     *
+     * @ a list of evaluated values
+     * @throws EvaluationException if an exception during parsing occurs
+     * @throws AccessException if an exception during accessing an object occurs
+     * @throws ParsingException if an exception during parsing occurs
+     */
     @CheckReturnValue
     @Nonnull
-    public List<Object> evaluate() throws EvaluationException, AccessException {
+    public List<Object> evaluate() throws EvaluationException, AccessException, ParsingException {
         eliminate();
-        ArrayList<Object> values = new ArrayList<>(tokens.size() / 2 + 1);
-        int i = 0;
-        for (Object token : tokens) {
-            if (i % 2 == 0) {
+        ListIterator<Object> iterator = tokens.listIterator();
+        while (iterator.hasNext()) {
+            Object token = iterator.next();
                 if (token instanceof Statement) ((Statement) token).execute(nameSpace);
-                else values.add(token);
-            } else if (token != Operator.SEPARATOR)
-                throw new EvaluationException("Expected separator, got " + token.getClass().getSimpleName(), 220);
-            i++;
+                else if (token == Operator.SEPARATOR) iterator.remove();
         }
-        return values;
+        return tokens;
     }
 }

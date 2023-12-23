@@ -28,12 +28,12 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.parser.NameSpace.resolved;
+import static org.scvis.lang.Namespace.resolved;
 
 @Immutable
 public class ComparisonOperator implements Operator {
 
-    public static final @Nonnull Operator EQUALS = new ComparisonOperator((a, b) -> resolved(a).equals(resolved(b)));
+    public static final @Nonnull Operator IS_EQUALS = new ComparisonOperator((a, b) -> resolved(a).equals(resolved(b)));
 
     public static final @Nonnull Operator NOT_EQUALS =
             new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));

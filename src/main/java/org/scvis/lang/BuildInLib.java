@@ -22,20 +22,54 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
 import org.scvis.ScVis;
-import org.scvis.lang.Callable;
+import org.scvis.math.MathLib;
+import org.scvis.parser.AccessException;
+import org.scvis.parser.ImportLoader;
 
 import javax.annotation.Nonnull;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.List;
-
-import org.scvis.lang.Namespace;
-import org.scvis.lang.Statement;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class BuildInLib extends Namespace {
+
+    private final ImportLoader loader = new ImportLoader() {
+        private final Map<String, Supplier<Namespace>> supplier = Map.of("math", MathLib::new);
+
+        @Override
+        public boolean exist(String name) {
+            return supplier.containsKey(name);
+        }
+
+        @Override
+        public Set<String> libs() {
+            return supplier.keySet();
+        }
+
+        @Override
+        public Namespace load(String name) {
+            if (!exist(name)) throw new InternalError(name);
+            return supplier.get(name).get();
+        }
+
+        @Override
+        public Namespace merge(Namespace into, Object src) throws AccessException {
+            String name = Namespace.unresolved(src).source();
+            Namespace namespace = load(name);
+            into.variables.putAll(namespace.variables);
+            return namespace;
+        }
+
+        @Override
+        public Namespace importInto(Namespace into, Object src) throws AccessException {
+            String name = Namespace.unresolved(src).source();
+            Namespace namespace = load(name);
+            into.set(name, namespace);
+            return namespace;
+        }
+    };
 
     public BuildInLib() {
         set("range", (Callable) args -> new Iterable<Long>() {
@@ -69,37 +103,11 @@ public class BuildInLib extends Namespace {
         set("int", (Callable) args -> ScVis.asInt(resolved(ScVis.getArg(args, 0))));
         set("float", (Callable) args -> ScVis.asFloat(resolved(ScVis.getArg(args, 0))));
         set("print", (Callable) args -> {
-            for (Object arg : args) System.out.print(arg + " ");
+            for (Object arg : args) System.out.print(resolved(arg) + " ");
             System.out.println();
             return args;
         });
-        set("if", (Callable) IfFunction::new);
-    }
-
-    public static class IfFunction implements Statement, Introducer {
-
-        Statement statement;
-
-        boolean condition = true;
-
-        public IfFunction(List<Object> args) {
-            for (Object arg : args) if (!(arg instanceof Boolean) || (boolean) arg) {
-                this.condition = false;
-                break;
-            }
-        }
-
-        @Override
-        public void introduce(Statement statement) {
-            this.statement = statement;
-        }
-
-        @Override
-        public void execute(@Nonnull Namespace space) throws AccessException, ParsingException, EvaluationException {
-            if (condition) {
-                if (statement == null) throw new ParsingException("Statement is null", 195);
-                statement.execute(space);
-            }
-        }
+        set("merge", (Callable) args -> loader.merge(this, ScVis.getArg(args, 0)));
+        set("import", (Callable) args -> loader.importInto(this, ScVis.getArg(args, 0)));
     }
 }

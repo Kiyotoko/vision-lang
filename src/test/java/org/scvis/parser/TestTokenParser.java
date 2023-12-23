@@ -2,6 +2,7 @@ package org.scvis.parser;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.scvis.lang.BuildInLib;
 
 class TestTokenParser {
 

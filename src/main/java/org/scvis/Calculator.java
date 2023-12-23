@@ -25,8 +25,8 @@
 
 package org.scvis;
 
-import org.scvis.parser.BuildInLib;
-import org.scvis.parser.NameSpace;
+import org.scvis.lang.BuildInLib;
+import org.scvis.lang.Namespace;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -36,7 +36,7 @@ import java.util.Scanner;
 
 public class Calculator {
 
-    private final @Nonnull NameSpace nameSpace = new BuildInLib();
+    private final @Nonnull Namespace nameSpace = new BuildInLib();
 
     private final @Nonnull InputStream input;
 

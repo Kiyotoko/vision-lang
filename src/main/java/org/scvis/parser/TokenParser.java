@@ -24,6 +24,9 @@
 
 package org.scvis.parser;
 
+import org.scvis.lang.Callable;
+import org.scvis.lang.Namespace;
+import org.scvis.lang.Statement;
 import org.scvis.math.Stochastic;
 
 import javax.annotation.CheckReturnValue;
@@ -43,12 +46,13 @@ public class TokenParser {
 
     private final @Nonnull List<Object> tokens = new ArrayList<>();
 
-    private final @Nonnull NameSpace nameSpace;
+    private final @Nonnull Namespace nameSpace;
 
     private char[] chars;
     private int pos;
+    private char bracket = 0x0;
 
-    public TokenParser(@Nonnull NameSpace nameSpace) {
+    public TokenParser(@Nonnull Namespace nameSpace) {
         this.nameSpace = nameSpace;
     }
 
@@ -76,7 +80,7 @@ public class TokenParser {
             char c = chars[pos];
             if (Character.isDigit(c) || c == '.') {
                 tokens.add(parseNumber());
-            } else if (Character.isAlphabetic(c)) {
+            } else if (Character.isAlphabetic(c) || c == '_') {
                 tokens.add(parseText());
             } else { // Parse one specified char or throw an exception
                 switch (c) {
@@ -94,11 +98,16 @@ public class TokenParser {
                     case '[':
                         tokens.add(parseArray());
                         break;
+                    case '{':
+                        tokens.add(parseBlock());
+                        break;
                     case ')':
                     case ']':
+                    case '}':
+                        checkClosedBracket();
                         return;
                     case '=':
-                        addOperator(ifNextIs('=') ? ComparisonOperator.EQUALS : DeclarationOperator.DECLARE);
+                        addOperator(ifNextIs('=') ? ComparisonOperator.IS_EQUALS : DeclarationOperator.DECLARE);
                         break;
                     case '+':
                         addOperator(ifNextIs('=') ? DeclarationOperator.ADD_TO : BinaryOperator.OperatorAndSign.ADD);
@@ -123,12 +132,15 @@ public class TokenParser {
                         else applyFactorial();
                         break;
                     case ' ':
+                    case '\n':
+                    case '\t':
                         break;
                     default:
-                        throw new ParsingException("Could not parse char " + c, 110);
+                        throw new ParsingException("Could not parse char '" + c + "'", 110);
                 }
             }
         }
+        if (bracket != 0x0) throw new ParsingException("Bracket '" + bracket + "' was not closed", 192);
     }
 
     /**
@@ -182,19 +194,40 @@ public class TokenParser {
         }
     }
 
+    private void skipWhiteSpaces() {
+        for (int index = pos + 1; index < chars.length; index++) {
+            if (chars[index] != ' ') {
+                pos = index - 1;
+                return;
+            }
+        }
+        pos = chars.length;
+    }
+
+    private void checkClosedBracket() throws ParsingException {
+        if (bracket == 0x0) throw new ParsingException("Bracket is null, maybe you want to remove a closing bracket?", 194);
+        if (chars[pos] != bracket) {
+            throw new ParsingException("Closed Bracket '" + chars[pos] +"' does not match opened bracket '" + bracket + "'!", 197);
+        }
+    }
+
+    private Statement parseBlock() {
+        throw new UnsupportedOperationException();
+    }
+
     @CheckReturnValue
     @Nonnull
     private Object parseText() throws ParsingException, EvaluationException, AccessException {
         StringBuilder build = new StringBuilder();
-        NameSpace working = nameSpace;
+        Namespace working = nameSpace;
         for (; pos < chars.length; pos++) {
             char c = chars[pos];
             if (Character.isAlphabetic(c) || Character.isDigit(c) || c == '_')
                 build.append(chars[pos]);
             else if (c == '.') {
                 Object space = working.get(build.toString()).resolve();
-                if (space instanceof NameSpace) {
-                    working = (NameSpace) space;
+                if (space instanceof Namespace) {
+                    working = (Namespace) space;
                     build = new StringBuilder();
                 } else {
                     throw new AccessException(new ClassCastException(space.toString()));
@@ -211,25 +244,31 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Object parseFunction(@Nonnull NameSpace working, @Nonnull String name)
+    private Object parseFunction(@Nonnull Namespace working, @Nonnull String name)
             throws ParsingException, AccessException, EvaluationException {
         TokenParser parser = parseSubTokens();
         Object function = working.get(name).resolve();
         if (function instanceof Callable) {
+            if (function instanceof Introducer) {
+                skipWhiteSpaces();
+                if (ifNextIs('{')) {
+                    ((Introducer) function).introduce(parseBlock());
+                }
+            }
             try {
                 return ((Callable) function).call(new TokenEvaluator(working, parser.operators, parser.tokens).evaluate());
             } catch (ClassCastException e) {
                 throw new AccessException(e);
             }
         } else {
-            throw new ParsingException(name + " is no function", 180);
+            throw new ParsingException(name + " is not callable", 180);
         }
     }
 
     @CheckReturnValue
     @Nonnull
-    private Object parseVar(@Nonnull NameSpace working, @Nonnull String name) {
-        return working.get(name.toLowerCase());
+    private Object parseVar(@Nonnull Namespace working, @Nonnull String name) {
+        return working.get(name);
     }
 
     @CheckReturnValue
@@ -237,6 +276,8 @@ public class TokenParser {
     private TokenParser parseSubTokens()
             throws ParsingException, EvaluationException, AccessException {
         TokenParser parser = new TokenParser(nameSpace);
+        char opened = chars[pos];
+        parser.bracket = opened == '(' ? ')' : (char) (opened + 2);
         parser.tokenize(chars, pos + 1);
         pos = parser.pos;
         return parser;

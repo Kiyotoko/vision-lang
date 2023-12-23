@@ -24,13 +24,33 @@
 
 package org.scvis.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import org.scvis.ScVis;
+import org.scvis.lang.BuildInLib;
+import org.scvis.lang.Namespace;
+
+import java.io.*;
 
 public class FileInterpreter {
-    private final TokenParser parser = new TokenParser(new BuildInLib());
 
-    FileInterpreter(FileInputStream stream) throws IOException, AccessException, ParsingException, EvaluationException {
-        parser.tokenize(new String(stream.readAllBytes()));
+    File file;
+    Namespace namespace;
+
+    @SuppressWarnings("all")
+    FileInterpreter(File file) throws IOException, AccessException, ParsingException, EvaluationException {
+        this.file = file;
+        this.namespace  = new FileNamespace();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                ScVis.interpret(namespace, line);
+            }
+        }
+    }
+
+    public class FileNamespace extends BuildInLib {
+        FileNamespace() {
+            set("__file__", file.getAbsoluteFile());
+            set("__path__", file.getAbsolutePath());
+        }
     }
 }

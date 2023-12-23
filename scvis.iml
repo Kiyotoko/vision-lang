@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AutoImportedSourceRoots">
+    <option name="directories">
+      <list>
+        <option value="src/main/java" />
+        <option value="src/test/java" />
+        <option value="target/generated-sources/annotations" />
+        <option value="target/generated-test-sources/test-annotations" />
+      </list>
+    </option>
+  </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="f4a88e7a-0665-49f6-8a1b-61d38aa2476d" />
+  </component>
+</module>

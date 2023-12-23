@@ -24,11 +24,23 @@
 
 package org.scvis.parser;
 
-public class CodeBlock {
+import org.scvis.lang.Namespace;
+import org.scvis.lang.Statement;
+
+import javax.annotation.Nonnull;
+
+public class CodeBlock implements Statement {
 
     private final char[] block;
 
     public CodeBlock(char[] block) {
         this.block = block;
+    }
+
+    @Override
+    public void execute(@Nonnull Namespace space) throws AccessException, ParsingException, EvaluationException {
+        TokenParser parser = new TokenParser(space);
+        parser.tokenize(block, 0);
+        new TokenEvaluator(space, parser.getOperators(), parser.getTokens()).evaluate();
     }
 }

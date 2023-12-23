@@ -24,12 +24,11 @@
 
 package org.scvis.math;
 
-import org.scvis.parser.Callable;
-import org.scvis.parser.NameSpace;
+import org.scvis.ScVis;
+import org.scvis.lang.Callable;
+import org.scvis.lang.Namespace;
 
-import static org.scvis.parser.Callable.num;
-
-public class MathLib extends NameSpace {
+public class MathLib extends Namespace {
 
     /**
      * This constant is currently not available in java 11. You can find <a
@@ -40,17 +39,17 @@ public class MathLib extends NameSpace {
     public MathLib() {
 
         // From java.lang.Math
-        set("sin", (Callable) args -> Math.sin(num(args, 0).doubleValue()));
-        set("cos", (Callable) args -> Math.cos(num(args, 0).doubleValue()));
-        set("tan", (Callable) args -> Math.tan(num(args, 0).doubleValue()));
-        set("asin", (Callable) args -> Math.asin(num(args, 0).doubleValue()));
-        set("acos", (Callable) args -> Math.acos(num(args, 0).doubleValue()));
-        set("atan", (Callable) args -> Math.atan(num(args, 0).doubleValue()));
-        set("sqrt", (Callable) args -> Math.sqrt(num(args, 0).doubleValue()));
-        set("abs", (Callable) args -> Math.abs(num(args, 0).doubleValue()));
-        set("signum", (Callable) args -> Math.signum(num(args, 0).doubleValue()));
-        set("hypot",
-                (Callable) args -> Math.hypot(num(args, 0).doubleValue(), num(args, 1).doubleValue()));
+        set("sin", (Callable) args -> Math.sin(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("cos", (Callable) args -> Math.cos(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("tan", (Callable) args -> Math.tan(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("asin", (Callable) args -> Math.asin(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("acos", (Callable) args -> Math.acos(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("atan", (Callable) args -> Math.atan(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("sqrt", (Callable) args -> Math.sqrt(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("abs", (Callable) args -> Math.abs(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("signum", (Callable) args -> Math.signum(ScVis.asFloat(ScVis.getArg(args, 0))));
+        set("hypot", (Callable) args -> Math.hypot(ScVis.asFloat(ScVis.getArg(args, 0)),
+                ScVis.asFloat(ScVis.getArg(args, 1))));
 
         set("pi", Math.PI);
         set("e", Math.E);

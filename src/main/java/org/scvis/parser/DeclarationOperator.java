@@ -24,12 +24,14 @@
 
 package org.scvis.parser;
 
+import org.scvis.lang.Statement;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.parser.NameSpace.resolved;
-import static org.scvis.parser.NameSpace.unresolved;
+import static org.scvis.lang.Namespace.resolved;
+import static org.scvis.lang.Namespace.unresolved;
 
 @Immutable
 public class DeclarationOperator implements Operator {
