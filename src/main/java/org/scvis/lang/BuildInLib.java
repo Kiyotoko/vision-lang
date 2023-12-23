@@ -24,32 +24,36 @@
 
 package org.scvis.parser;
 
+import org.scvis.ScVis;
+import org.scvis.lang.Callable;
+
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.List;
 
-import static org.scvis.parser.Callable.num;
-import static org.scvis.parser.Callable.obj;
+import org.scvis.lang.Namespace;
+import org.scvis.lang.Statement;
 
-public class BuildInLib extends NameSpace {
+public class BuildInLib extends Namespace {
 
     public BuildInLib() {
-        set("range", (Callable) args -> new Iterable<Integer>() {
-            private final int sta = num(args, 0).intValue();
-            private final int ste = num(args, 1).intValue();
-            private final int sto = num(args, 2).intValue();
+        set("range", (Callable) args -> new Iterable<Long>() {
+            private final long sta = ScVis.asInt(ScVis.getArg(args, 0));
+            private final long ste = ScVis.asInt(ScVis.getArg(args, 1));
+            private final long sto = ScVis.asInt(ScVis.getArg(args, 2));
             @Nonnull
             @Override
-            public Iterator<Integer> iterator() {
+            public Iterator<Long> iterator() {
                 return new Iterator<>() {
-                    int cur = sta;
+                    long cur = sta;
                     @Override
                     public boolean hasNext() {
                         return cur < sto;
                     }
 
                     @Override
-                    public Integer next() {
+                    public Long next() {
                         if (!hasNext()) throw new NoSuchElementException();
                         try {
                             return cur;
@@ -60,12 +64,42 @@ public class BuildInLib extends NameSpace {
                 };
             }
         });
-        set("type", (Callable) args -> resolved(obj(args, 0)).getClass().getSimpleName());
-        set("str", (Callable) args -> resolved(obj(args, 0)).toString());
+        set("type", (Callable) args -> resolved(ScVis.getArg(args, 0)).getClass().getSimpleName());
+        set("str", (Callable) args -> resolved(ScVis.getArg(args, 0)).toString());
+        set("int", (Callable) args -> ScVis.asInt(resolved(ScVis.getArg(args, 0))));
+        set("float", (Callable) args -> ScVis.asFloat(resolved(ScVis.getArg(args, 0))));
         set("print", (Callable) args -> {
             for (Object arg : args) System.out.print(arg + " ");
             System.out.println();
             return args;
         });
+        set("if", (Callable) IfFunction::new);
+    }
+
+    public static class IfFunction implements Statement, Introducer {
+
+        Statement statement;
+
+        boolean condition = true;
+
+        public IfFunction(List<Object> args) {
+            for (Object arg : args) if (!(arg instanceof Boolean) || (boolean) arg) {
+                this.condition = false;
+                break;
+            }
+        }
+
+        @Override
+        public void introduce(Statement statement) {
+            this.statement = statement;
+        }
+
+        @Override
+        public void execute(@Nonnull Namespace space) throws AccessException, ParsingException, EvaluationException {
+            if (condition) {
+                if (statement == null) throw new ParsingException("Statement is null", 195);
+                statement.execute(space);
+            }
+        }
     }
 }

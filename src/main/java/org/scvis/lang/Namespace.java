@@ -22,7 +22,11 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
+
+import org.scvis.parser.AccessBiFunction;
+import org.scvis.parser.AccessException;
+import org.scvis.parser.Accessible;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -30,7 +34,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NameSpace implements Accessible {
+public class Namespace implements Accessible {
 
     @CheckReturnValue
     @Nonnull
@@ -73,7 +77,7 @@ public class NameSpace implements Accessible {
         }
     }
 
-    private final @Nonnull Map<String, Object> variables = new HashMap<>();
+    final @Nonnull Map<String, Object> variables = new HashMap<>();
 
     @Override
     public void set(@Nonnull String name, @Nonnull Object value) {

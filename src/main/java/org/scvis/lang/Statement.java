@@ -24,10 +24,8 @@
 
 package org.scvis.parser;
 
-import org.scvis.parser.NameSpace;
-
 import javax.annotation.Nonnull;
 
 public interface Statement {
-    void execute(@Nonnull NameSpace space) throws AccessException;
+    void execute(@Nonnull NameSpace space) throws AccessException, ParsingException, EvaluationException;
 }
