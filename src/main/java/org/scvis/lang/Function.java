@@ -22,18 +22,7 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import org.scvis.ScVisException;
-
-public class AccessException extends ScVisException {
-
-    public AccessException(String message, int errorCode) {
-        super(message, errorCode);
-        checkForRange(300, 399);
-    }
-
-    public AccessException(Exception exception) {
-        super(exception.getMessage(), 300);
-    }
+public class Function {
 }

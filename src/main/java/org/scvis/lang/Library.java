@@ -22,7 +22,33 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-public interface Sign {
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class Library implements Namespace {
+
+    final @Nonnull Map<String, Object> variables = new HashMap<>();
+
+    @Override
+    public void set(@Nonnull String label, @Nonnull Object value) {
+        variables.put(label, value);
+    }
+
+    @CheckReturnValue
+    @Override
+    @Nonnull
+    public Object get(@Nonnull String label) {
+        return variables.get(label);
+    }
+
+    @Nonnull
+    @Override
+    public Set<String> labels() {
+        return variables.keySet();
+    }
 }

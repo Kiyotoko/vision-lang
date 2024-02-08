@@ -35,7 +35,5 @@ public interface ImportLoader {
 
     Namespace load(String name);
 
-    Namespace merge(Namespace into, Object src) throws AccessException;
-
-    Namespace importInto(Namespace into, Object src) throws AccessException;
+    Namespace importInto(Namespace into, Object src);
 }

@@ -22,10 +22,9 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import org.scvis.lang.Statement;
+public enum Keyword {
 
-public interface Introducer {
-    void introduce(Statement statement);
+    IF, ELSE, FOR, WHILE, IMPORT, STRUCT, FUNC
 }

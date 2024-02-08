@@ -24,14 +24,13 @@
 
 package org.scvis.parser;
 
+import org.scvis.ScVisException;
 import org.scvis.lang.Callable;
 import org.scvis.lang.Namespace;
 import org.scvis.lang.Statement;
-import org.scvis.math.Stochastic;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,18 +41,15 @@ import java.util.List;
  */
 public class TokenParser {
 
-    private final @Nonnull List<Operator> operators = new ArrayList<>();
+    private final @Nonnull Namespace namespace;
 
-    private final @Nonnull List<Object> tokens = new ArrayList<>();
-
-    private final @Nonnull Namespace nameSpace;
-
+    private final Statement statement = new Statement();
     private char[] chars;
     private int pos;
     private char bracket = 0x0;
 
-    public TokenParser(@Nonnull Namespace nameSpace) {
-        this.nameSpace = nameSpace;
+    public TokenParser(@Nonnull Namespace namespace) {
+        this.namespace = namespace;
     }
 
     /**
@@ -61,252 +57,167 @@ public class TokenParser {
      *
      * @param string the string to evaluate
      */
-    public void tokenize(@Nonnull String string) throws ParsingException, EvaluationException, AccessException {
+    public void tokenize(@Nonnull String string) {
         tokenize(string.toCharArray(), 0);
     }
 
     /**
      * Parses a char array from the specified start index and stores the tokens.
+     * <code>
+    Function ( ... )
+    Pair = Value + Operator
+    Value = Function | Var | Number | String
+     </code>
      *
      * @param chars the char array
      * @param start the start index
-     * @throws ParsingException if the start index is < 0
      */
-    public void tokenize(@Nonnull char[] chars, int start) throws ParsingException, EvaluationException,
-            AccessException {
-        if (start < 0)
-            throw new ParsingException("Start index must >= 0", 100);
-        for (this.chars = chars, pos = start; pos < chars.length; pos++) {
-            char c = chars[pos];
-            if (Character.isDigit(c) || c == '.') {
-                tokens.add(parseNumber());
-            } else if (Character.isAlphabetic(c) || c == '_') {
-                tokens.add(parseText());
-            } else { // Parse one specified char or throw an exception
-                switch (c) {
-                    case ',':
-                    case ';':
-                        addOperator(Operator.SEPARATOR);
-                        break;
-                    case '"':
-                    case '\'':
-                        tokens.add(parseString());
-                        break;
-                    case '(':
-                        tokens.add(parseBrackets());
-                        break;
-                    case '[':
-                        tokens.add(parseArray());
-                        break;
-                    case '{':
-                        tokens.add(parseBlock());
-                        break;
-                    case ')':
-                    case ']':
-                    case '}':
-                        checkClosedBracket();
-                        return;
-                    case '=':
-                        addOperator(ifNextIs('=') ? ComparisonOperator.IS_EQUALS : DeclarationOperator.DECLARE);
-                        break;
-                    case '+':
-                        addOperator(ifNextIs('=') ? DeclarationOperator.ADD_TO : BinaryOperator.OperatorAndSign.ADD);
-                        break;
-                    case '-':
-                        addOperator(ifNextIs('=') ? DeclarationOperator.SUB_TO : BinaryOperator.OperatorAndSign.SUB);
-                        break;
-                    case '*':
-                        addOperator(ifNextIs('=') ? DeclarationOperator.MUL_TO : BinaryOperator.MUL);
-                        break;
-                    case '/':
-                        addOperator(ifNextIs('=') ? DeclarationOperator.DIV_TO : BinaryOperator.DIV);
-                        break;
-                    case '^':
-                        addOperator(BinaryOperator.POW);
-                        break;
-                    case '%':
-                        addOperator(BinaryOperator.MOD);
-                        break;
-                    case '!':
-                        if (ifNextIs('=')) addOperator(ComparisonOperator.NOT_EQUALS);
-                        else applyFactorial();
-                        break;
-                    case ' ':
-                    case '\n':
-                    case '\t':
-                        break;
-                    default:
-                        throw new ParsingException("Could not parse char '" + c + "'", 110);
-                }
-            }
-        }
-        if (bracket != 0x0) throw new ParsingException("Bracket '" + bracket + "' was not closed", 192);
-    }
+    public void tokenize(@Nonnull char[] chars, int start) {
+        this.chars = chars;
+        this.pos = start;
 
-    /**
-     * Call this method always if you want to parse multiple strings. If not, this may raise an exception.
-     *
-     * @throws ParsingException if no tokens where parsed, the last token or operator is a separator or if the size of
-     * tokens and operators do not match.
-     */
-    public void chain() throws ParsingException {
-        if (tokens.isEmpty())
-            throw new ParsingException("Can not chain parsing before anything was parsed", 120);
-        else if (tokens.size() != operators.size() + 1)
-            throw new ParsingException("The token list must be by one element greater then the operator list", 130);
-        else if (tokens.get(tokens.size() - 1) == Operator.SEPARATOR || operators.get(operators.size() - 1) ==
-                Operator.SEPARATOR)
-            throw new ParsingException("You can not chain again before evaluating something", 140);
-        tokens.add(Operator.SEPARATOR);
-        operators.add(Operator.SEPARATOR);
-    }
-
-    public void addOperator(@Nonnull Operator operator) {
-        tokens.add(operator);
-        operators.add(operator);
-    }
-
-    @CheckReturnValue
-    private char getNext() throws ParsingException {
-        int index = pos + 1;
-        if (index >= chars.length)
-            throw new ParsingException("", 199);
-        return chars[index];
-    }
-
-    @CheckReturnValue
-    private boolean ifNextIs(char c) throws ParsingException {
-        if (getNext() == c) {
-            pos++;
-            return true;
-        }
-        return false;
-    }
-
-    private void applyFactorial() throws ParsingException {
-        int index = tokens.size() - 1;
-        if (index < 0) throw new ParsingException("Factorial requires a left value", 150);
-        Object last = tokens.get(index);
-        if (last instanceof Number) {
-            tokens.set(index, Stochastic.factorial(((Number) last).shortValue()));
-        } else {
-            throw new ParsingException("Factorial requires a left value", 150);
-        }
+        if (chars.length == 0) return;
+        parseStatement();
     }
 
     private void skipWhiteSpaces() {
-        for (int index = pos + 1; index < chars.length; index++) {
-            if (chars[index] != ' ') {
-                pos = index - 1;
-                return;
-            }
-        }
-        pos = chars.length;
-    }
-
-    private void checkClosedBracket() throws ParsingException {
-        if (bracket == 0x0) throw new ParsingException("Bracket is null, maybe you want to remove a closing bracket?", 194);
-        if (chars[pos] != bracket) {
-            throw new ParsingException("Closed Bracket '" + chars[pos] +"' does not match opened bracket '" + bracket + "'!", 197);
+        char c;
+        while (hasCharsLeft() && ((c = chars[pos]) == ' ' || c == '\t' || c == '\n')) {
+            pos++;
         }
     }
 
-    private Statement parseBlock() {
-        throw new UnsupportedOperationException();
+    public void parseStatement() {
+        skipWhiteSpaces();
+        parseValue();
+        skipWhiteSpaces();
+        if (hasCharsLeft() && hasNotClosed())
+            parsePair();
     }
 
-    @CheckReturnValue
-    @Nonnull
-    private Object parseText() throws ParsingException, EvaluationException, AccessException {
-        StringBuilder build = new StringBuilder();
-        Namespace working = nameSpace;
-        for (; pos < chars.length; pos++) {
-            char c = chars[pos];
-            if (Character.isAlphabetic(c) || Character.isDigit(c) || c == '_')
-                build.append(chars[pos]);
-            else if (c == '.') {
-                Object space = working.get(build.toString()).resolve();
-                if (space instanceof Namespace) {
-                    working = (Namespace) space;
-                    build = new StringBuilder();
-                } else {
-                    throw new AccessException(new ClassCastException(space.toString()));
-                }
-            } else break;
-        }
-        if (pos < chars.length && chars[pos] == '(') {
-            return parseFunction(working, build.toString());
+    public void parsePair() {
+        parseOperator();
+        skipWhiteSpaces();
+        parseValue();
+        skipWhiteSpaces();
+        if (hasCharsLeft() && hasNotClosed())
+            parsePair();
+    }
+
+    public void parseValue() {
+        debug();
+        char current = chars[pos];
+        if (Character.isDigit(current) || current == '.')
+            statement.tokens.add(getNextNumber());
+        else if (Character.isAlphabetic(current) || current == '_')
+            parseLabel();
+        else if (current == '"' || current == '\'')
+            statement.tokens.add(getNextString());
+        else if (current == '(')
+            statement.tokens.add(getNextWrapped().get(0));
+        else if (current == '[')
+            statement.tokens.add(getNextWrapped());
+    }
+
+    public void parseLabel() {
+        Label label = getNextLabel();
+
+        skipWhiteSpaces();
+        debug();
+        if (hasCharsLeft() && chars[pos] == '(') {
+            System.out.println("Func");
+            parseFunction(label);
         } else {
-            pos--;
-            return parseVar(working, build.toString());
-        }
-    }
-
-    @CheckReturnValue
-    @Nonnull
-    private Object parseFunction(@Nonnull Namespace working, @Nonnull String name)
-            throws ParsingException, AccessException, EvaluationException {
-        TokenParser parser = parseSubTokens();
-        Object function = working.get(name).resolve();
-        if (function instanceof Callable) {
-            if (function instanceof Introducer) {
+            System.out.println("Var");
+            if (statement.tokens.isEmpty()) {
+                statement.tokens.add(label.getResource());
+            } else {
+                statement.tokens.add(label);
                 skipWhiteSpaces();
-                if (ifNextIs('{')) {
-                    ((Introducer) function).introduce(parseBlock());
+                parsePair();
+            }
+        }
+    }
+
+    public void parseOperator() {
+        var current = chars[pos++];
+        switch (current) {
+            case '=':
+                statement.addOperator(hasNextEquals() ? Operators.IS_EQUALS : Operators.DECLARE);
+                break;
+            case '+':
+                statement.addOperator(hasNextEquals() ? Operators.ADD_TO : Operators.Sign.ADD);
+                break;
+            case '-':
+                statement.addOperator(hasNextEquals() ? Operators.SUB_TO : Operators.Sign.SUB);
+                break;
+            case '*':
+                statement.addOperator(hasNextEquals() ? Operators.MUL_TO : Operators.MUL);
+                break;
+            case '/':
+                statement.addOperator(hasNextEquals() ? Operators.DIV_TO : Operators.DIV);
+                break;
+            case '^':
+                statement.addOperator(Operators.POW);
+                break;
+            case '%':
+                statement.addOperator(Operators.MOD);
+                break;
+            case ',':
+                statement.addOperator(Operators.SEPARATOR);
+                break;
+            case '!':
+                if (hasNextEquals()) {
+                    statement.addOperator(Operators.NOT_EQUALS);
+                    break;
                 }
-            }
-            try {
-                return ((Callable) function).call(new TokenEvaluator(working, parser.operators, parser.tokens).evaluate());
-            } catch (ClassCastException e) {
-                throw new AccessException(e);
-            }
+                throw new ScVisException("Operator requires postfix", 123);
+            default:
+                throw new ScVisException("Char '" + current + "' is not an operator", 110);
+        }
+    }
+
+    public void parseFunction(@Nonnull Label label) {
+        TokenParser parser = getNextSubTokens();
+        Object function = label.getResource();
+        if (function instanceof Callable) {
+            statement.tokens.add(((Callable) function).call(new TokenEvaluator(namespace, parser.statement).evaluate()));
         } else {
-            throw new ParsingException(name + " is not callable", 180);
+            throw new ScVisException("Label '" + label.getName() + "' is not callable", 180);
         }
     }
 
     @CheckReturnValue
     @Nonnull
-    private Object parseVar(@Nonnull Namespace working, @Nonnull String name) {
-        return working.get(name);
-    }
-
-    @CheckReturnValue
-    @Nonnull
-    private TokenParser parseSubTokens()
-            throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser(nameSpace);
-        char opened = chars[pos];
-        parser.bracket = opened == '(' ? ')' : (char) (opened + 2);
-        parser.tokenize(chars, pos + 1);
-        pos = parser.pos;
-        return parser;
-    }
-
-    @CheckReturnValue
-    @Nonnull
-    private Object parseBrackets() throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = parseSubTokens();
-        List<Object> values = new TokenEvaluator(nameSpace, parser.operators, parser.tokens).evaluate();
-        if (values.size() != 1) {
-            throw new ParsingException("Brackets wrap one effective value, got " + values.size(), 170);
+    public Number getNextNumber() {
+        long build = 0;
+        int real = -1;
+        while (hasCharsLeft()) {
+            char c = chars[pos++];
+            if (Character.isDigit(c)) {
+                build = build * 10 + Character.digit(c, 10);
+            } else if (c == '.') {
+                if (real > -1)
+                    throw new ScVisException("Numbers can not have two dots", 190);
+                real = pos;
+            } else {
+                pos--;
+                break;
+            }
         }
-        return values.get(0);
+
+        if (real > -1) {
+            @SuppressWarnings("all")
+            var power = Math.pow(10.0, pos - real + 1);
+            return build * power;
+        } else return build;
     }
 
     @CheckReturnValue
     @Nonnull
-    private Object parseArray() throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = parseSubTokens();
-        return new TokenEvaluator(nameSpace, parser.operators, parser.tokens).evaluate();
-    }
-
-    @CheckReturnValue
-    @Nonnull
-    private Object parseString() {
-        char intro = chars[pos++];
+    private String getNextString() {
         StringBuilder build = new StringBuilder();
-        for (; pos < chars.length; pos++) {
+        for (char intro = chars[pos++]; pos < chars.length; pos++) {
             char c = chars[pos];
             if (c != intro)
                 build.append(chars[pos]);
@@ -317,37 +228,74 @@ public class TokenParser {
 
     @CheckReturnValue
     @Nonnull
-    private Number parseNumber() throws ParsingException {
-        long build = 0;
-        int real = -1;
-        for (; pos < chars.length; pos++) {
-            char c = chars[pos];
-            if (Character.isDigit(c)) {
-                build = build * 10 + Character.digit(c, 10);
-            } else if (c == '.') {
-                if (real > -1)
-                    throw new ParsingException("A number can not have two dots", 190);
-                real = pos;
-            } else {
+    public List<Object> getNextWrapped() {
+        TokenParser parser = getNextSubTokens();
+        return new TokenEvaluator(namespace, parser.statement).evaluate();
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public Label getNextLabel() {
+        StringBuilder build = new StringBuilder();
+        Namespace working = namespace;
+        while (hasCharsLeft()) {
+            char c = chars[pos++];
+            if (Character.isAlphabetic(c) || Character.isDigit(c) || c == '_')
+                build.append(c);
+            else if (c == '.') {
+                var next = working.get(build.toString());
+                if (next instanceof Namespace) working = (Namespace) next;
+                else throw new ScVisException("Pointer is not a namespace", 328);
+                build = new StringBuilder();
+            }
+            else {
+                pos--;
                 break;
             }
         }
-        pos--;
-        if (real > -1) {
-            @SuppressWarnings("all")
-            var power = Math.pow(10.0, pos - real);
-            return build * power;
+        return new Label(working, build.toString());
+    }
+
+    private TokenParser getNextSubTokens() {
+        TokenParser parser = new TokenParser(namespace);
+        char opened = chars[pos];
+        parser.bracket = opened == '(' ? ')' : (char) (opened + 2);
+        parser.tokenize(chars, ++pos);
+        pos = parser.pos + 1;
+        return parser;
+    }
+
+    @CheckReturnValue
+    private boolean hasNextEquals() {
+        if (!hasCharsLeft())
+            throw new ScVisException("No other chars left", 199);
+        return chars[pos] == '=';
+    }
+
+    @CheckReturnValue
+    private boolean hasCharsLeft() {
+        return pos < chars.length;
+    }
+
+    private boolean hasNotClosed() {
+        return chars[pos] != ')' && chars[pos] != ']';
+    }
+
+    @SuppressWarnings("unused")
+    private void checkClosedBracket() {
+        if (bracket == 0x0) throw new ScVisException("Bracket is null, maybe you want to remove a closing bracket?", 194);
+        if (chars[pos] != bracket) {
+            throw new ScVisException("Closed Bracket '" + chars[pos] + "' does not match opened bracket '" + bracket + "'!", 197);
         }
-        return build;
     }
 
-    @Nonnull
-    public List<Operator> getOperators() {
-        return operators;
+    private void debug() {
+        System.err.println("Pos and Char: " + pos + ", " + (hasCharsLeft() ? chars[pos] : "::eol::"));
     }
 
+    @CheckReturnValue
     @Nonnull
-    public List<Object> getTokens() {
-        return tokens;
+    public Statement getStatement() {
+        return statement;
     }
 }

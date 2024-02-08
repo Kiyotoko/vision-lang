@@ -25,6 +25,7 @@
 package org.scvis.parser;
 
 import org.scvis.ScVis;
+import org.scvis.ScVisException;
 import org.scvis.lang.BuildInLib;
 import org.scvis.lang.Namespace;
 
@@ -36,13 +37,19 @@ public class FileInterpreter {
     Namespace namespace;
 
     @SuppressWarnings("all")
-    FileInterpreter(File file) throws IOException, AccessException, ParsingException, EvaluationException {
+    FileInterpreter(File file) throws IOException {
         this.file = file;
         this.namespace  = new FileNamespace();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
+            int linenumber = 0;
             while ((line = reader.readLine()) != null) {
-                ScVis.interpret(namespace, line);
+                linenumber++;
+                try {
+                    ScVis.interpret(namespace, line);
+                } catch (Exception ex) {
+                    new RuntimeException("Got an exception in line " + linenumber, ex);
+                }
             }
         }
     }

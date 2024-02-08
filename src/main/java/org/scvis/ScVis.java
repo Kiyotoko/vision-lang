@@ -29,7 +29,6 @@ import org.scvis.parser.*;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import java.util.Iterator;
 import java.util.List;
 
 public class ScVis {
@@ -40,62 +39,49 @@ public class ScVis {
 
     @CheckReturnValue
     @Nonnull
-    public static List<Object> interpret(@Nonnull Namespace nameSpace, @Nonnull String line)
-            throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser(nameSpace);
+    public static List<Object> interpret(@Nonnull Namespace namespace, @Nonnull String line) {
+        TokenParser parser = new TokenParser(namespace);
         parser.tokenize(line);
-        return new TokenEvaluator(nameSpace, parser.getOperators(), parser.getTokens()).evaluate();
+        return new TokenEvaluator(namespace, parser.getStatement()).evaluate();
     }
 
     @CheckReturnValue
     @Nonnull
-    public static List<Object> interpretAll(@Nonnull Namespace nameSpace, @Nonnull Iterable<String> lines)
-            throws ParsingException, EvaluationException, AccessException {
-        TokenParser parser = new TokenParser(nameSpace);
-        Iterator<String> iterator = lines.iterator();
-        while (iterator.hasNext()) {
-            parser.tokenize(iterator.next());
-            if (iterator.hasNext()) {
-                parser.chain();
-            }
-        }
-        return new TokenEvaluator(nameSpace, parser.getOperators(), parser.getTokens()).evaluate();
+    private static ClassCastException cce(@Nonnull Object arg, String type) {
+        return new ClassCastException("Argument '" + arg + "' could not be cast to " + type);
     }
 
-    public static Number asNumber(Object arg) throws AccessException {
-        arg = Namespace.resolved(arg);
+    public static Number asNumber(Object arg){
         if (arg instanceof Number) return (Number) arg;
-        throw new AccessException("Argument is not a number", 309);
+        throw cce(arg, "number");
     }
 
-    public static Long asInt(Object arg) throws AccessException {
+    public static Long asInt(Object arg) {
         return asNumber(arg).longValue();
     }
 
-    public static Double asFloat(Object arg) throws AccessException {
+    public static Double asFloat(Object arg) {
         return asNumber(arg).doubleValue();
     }
 
-    public static String asString(Object arg) throws AccessException {
-        arg = Namespace.resolved(arg);
+    public static String asString(Object arg) {
         if (arg instanceof String) return (String) arg;
-        throw new AccessException("Argument is not a string", 309);
+        throw cce(arg, "string");
     }
 
-    public static Iterable<?> asIterable(Object arg) throws AccessException {
-        arg = Namespace.resolved(arg);
+    public static Label asLabel(Object arg) {
+        if (arg instanceof Label) return (Label) arg;
+        throw cce(arg, "label");
+    }
+
+    @SuppressWarnings("unused")
+    public static Iterable<?> asIterable(Object arg) {
         if (arg instanceof Iterable) return (Iterable<?>) arg;
-        throw new AccessException("Argument is not iterable", 309);
+        throw cce(arg,"iterable");
     }
 
-    public static <T> T asType(Object arg, Class<T> reflection) throws AccessException {
-        arg = Namespace.resolved(arg);
-        if (reflection.isInstance(arg)) return reflection.cast(arg);
-        throw new AccessException("Argument is not an instance", 310);
-    }
-
-    public static Object getArg(List<Object> args, int index) throws AccessException {
-        if (index < 0 || index >= args.size()) throw new AccessException("Argument outside range", 311);
+    public static Object getArg(List<Object> args, int index) {
+        if (index < 0 || index >= args.size()) throw new IndexOutOfBoundsException("Argument outside range");
         return args.get(index);
     }
 }

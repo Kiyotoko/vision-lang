@@ -24,35 +24,47 @@
 
 package org.scvis.parser;
 
+import org.scvis.lang.Namespace;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
-import static org.scvis.lang.Namespace.resolved;
+public class Label {
+    private final @Nonnull Namespace namespace;
+    private final @Nonnull String name;
 
-@Immutable
-public class ComparisonOperator implements Operator {
-
-    public static final @Nonnull Operator IS_EQUALS = new ComparisonOperator((a, b) -> resolved(a).equals(resolved(b)));
-
-    public static final @Nonnull Operator NOT_EQUALS =
-            new ComparisonOperator((a, b) -> !resolved(a).equals(resolved(b)));
-
-    private final @Nonnull AccessBiFunction<Object, Object, Boolean> predicate;
-
-    protected ComparisonOperator(@Nonnull AccessBiFunction<Object, Object, Boolean> predicate) {
-        this.predicate = predicate;
+    @CheckReturnValue
+    public Label(@Nonnull Namespace namespace, @Nonnull String name) {
+        this.namespace = namespace;
+        this.name = name;
     }
 
     @CheckReturnValue
     @Nonnull
-    @Override
-    public Boolean evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException {
-        return predicate.apply(left, right);
+    public Object getResource() {
+        return namespace.get(name);
+    }
+
+    @Nonnull
+    public Object setResource(@Nonnull Object value) {
+        namespace.set(getName(), value);
+        return value;
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public Namespace getNamespace() {
+        return namespace;
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public String getName() {
+        return name;
     }
 
     @Override
-    public int priority() {
-        return 15;
+    public String toString() {
+        return '@' + getName();
     }
 }

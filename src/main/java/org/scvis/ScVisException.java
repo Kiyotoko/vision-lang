@@ -24,7 +24,7 @@
 
 package org.scvis;
 
-public class ScVisException extends Exception {
+public class ScVisException extends RuntimeException {
     private final int errorCode;
 
     public ScVisException(String message, int errorCode) {

@@ -24,47 +24,21 @@
 
 package org.scvis.parser;
 
+import org.scvis.ScVisException;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import java.util.function.BinaryOperator;
 
 /**
  * An operator always evaluates two values and returns a new value. Therefore, <char>!</char> is not an operator,
  * because it only evaluates one value. Each operator can also be a sign. A sign can take <code>0</code> as a left value
- * if no left value is given. If it can not get a left or right value, a {@link EvaluationException} is thrown.
+ * if no left value is given. If it can not get a left or right value, a {@link ScVisException} is thrown.
  *
  * @author karlz
  * @see Comparable
- * @see EvaluationException
  */
-public interface Operator extends Comparable<Operator> {
-
-    /**
-     * Default implementation of a separator operator. A separator split arguments of functions or separates expressions
-     * to parse. The chars <code>,</code> and <code>;</code> are assigned to this operator.
-     */
-    Operator SEPARATOR = new Operator() {
-        @Nonnull
-        @Override
-        public Object evaluate(@Nonnull Object left, @Nonnull Object right) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int priority() {
-            return -10;
-        }
-    };
-
-    /**
-     * Evaluates the left and right value and returns the new value.
-     *
-     * @param left  the left value
-     * @param right the right value
-     * @return the new evaluated value
-     */
-    @CheckReturnValue
-    @Nonnull
-    Object evaluate(@Nonnull Object left, @Nonnull Object right) throws AccessException;
+public interface Operator extends Comparable<Operator>, BinaryOperator<Object> {
 
     /**
      * The priority is the sequence, in which the values are evaluated.

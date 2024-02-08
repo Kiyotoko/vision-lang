@@ -1,5 +1,6 @@
 package org.scvis.parser;
 
+import org.scvis.ScVisException;
 import org.scvis.lang.Namespace;
 import org.scvis.lang.Statement;
 
@@ -7,77 +8,62 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.function.Consumer;
 
 public class TokenEvaluator {
 
-    private final @Nonnull List<Operator> operators;
-    private final @Nonnull List<Object> tokens;
-    private final @Nonnull Namespace nameSpace;
+    private final @Nonnull Namespace namespace;
+    private final @Nonnull Statement statement;
 
-    public TokenEvaluator(@Nonnull Namespace nameSpace, @Nonnull List<Operator> operators, @Nonnull List<Object> tokens) {
-        this.nameSpace = nameSpace;
-        this.operators = operators;
-        Collections.sort(operators);
-        this.tokens = tokens;
+    public TokenEvaluator(@Nonnull Namespace namespace, @Nonnull Statement statement) {
+        this.namespace = namespace;
+        this.statement = statement;
+        Collections.sort(statement.operators);
     }
 
-    private void eliminate() throws EvaluationException, AccessException {
-        for (Operator operator : operators) {
-            if (operator == Operator.SEPARATOR) break;
+    private void eliminate() {
+        for (Operator operator : statement.operators) {
+            if (operator == Operators.SEPARATOR) break;
             eliminate(operator);
         }
-        operators.clear();
     }
 
-    private void eliminate(Operator operator) throws EvaluationException, AccessException {
-        int index = tokens.indexOf(operator);
+    @SuppressWarnings("unchecked")
+    private void eliminate(Operator operator) {
+        int index = statement.tokens.indexOf(operator);
         if (index == -1)
-            throw new EvaluationException("Operator must be present in tokens", 200);
-        if (index == tokens.size() - 1)
-            throw new EvaluationException("A right value must exist", 230);
+            throw new ScVisException("Operator must be present in tokens", 200);
+        if (index == statement.tokens.size() - 1)
+            throw new ScVisException("A right value must exist", 230);
         if (index == 0) {
-            Object right = tokens.get(1);
-            if (operator instanceof Sign) {
-                try {
-                    Object evaluated = operator.evaluate(0.0, right);
-                    tokens.remove(0);
-                    tokens.set(0, evaluated);
-                } catch (ClassCastException e) {
-                    throw new AccessException(e);
-                }
+            Object right = statement.tokens.get(1);
+            if (operator instanceof Operators.Sign) {
+                Object evaluated = operator.apply(0.0, right);
+                statement.tokens.remove(0);
+                statement.tokens.set(0, evaluated);
             } else {
-                throw new EvaluationException("Operators that are not signs require a left and right value", 210);
+                throw new ScVisException("Operators that are not signs require a left and right value", 210);
             }
         } else {
-            try {
-                Object evaluated = operator.evaluate(tokens.get(index - 1), tokens.get(index + 1));
-                tokens.remove(index + 1);
-                tokens.remove(index);
-                tokens.set(index - 1, evaluated);
-            } catch (ClassCastException e) {
-                throw new AccessException(e);
-            }
+            Object evaluated = operator.apply(statement.tokens.get(index - 1), statement.tokens.get(index + 1));
+            statement.tokens.remove(index + 1);
+            statement.tokens.remove(index);
+
+            if (evaluated instanceof Consumer)
+                ((Consumer<Namespace>) evaluated).accept(namespace);
+            else
+                statement.tokens.set(index - 1, evaluated);
         }
     }
 
     /**
-     *
-     * @ a list of evaluated values
-     * @throws EvaluationException if an exception during parsing occurs
-     * @throws AccessException if an exception during accessing an object occurs
-     * @throws ParsingException if an exception during parsing occurs
+     * @return a list of evaluated values
      */
     @CheckReturnValue
     @Nonnull
-    public List<Object> evaluate() throws EvaluationException, AccessException, ParsingException {
+    public List<Object> evaluate() {
         eliminate();
-        ListIterator<Object> iterator = tokens.listIterator();
-        while (iterator.hasNext()) {
-            Object token = iterator.next();
-                if (token instanceof Statement) ((Statement) token).execute(nameSpace);
-                else if (token == Operator.SEPARATOR) iterator.remove();
-        }
-        return tokens;
+        statement.tokens.removeIf(token -> token == Operators.SEPARATOR);
+        return statement.tokens;
     }
 }

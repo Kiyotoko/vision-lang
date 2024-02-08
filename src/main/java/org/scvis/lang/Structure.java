@@ -22,15 +22,52 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public interface Accessible {
-    @CheckReturnValue
-    @Nonnull
-    Object get(String name);
+public class Structure {
 
-    void set(@Nonnull String name, @Nonnull Object value);
+    Map<String, Integer> labels;
+
+    class Constructor implements Callable {
+
+        @Override
+        public Creation call(List<java.lang.Object> args) {
+            if (args.size() != labels.size())
+                throw new IllegalArgumentException("False number of arguments for constructor");
+            return new Creation(args);
+        }
+    }
+
+    class Creation implements Namespace {
+        private final Object[] fields = new Object[labels.size()];
+
+        Creation(Iterable<Object> data) {
+            int i = 0;
+            for (var v : data) {
+                fields[i++]=v;
+            }
+        }
+
+        @Override
+        public void set(@Nonnull String label, @Nonnull Object value) {
+            fields[labels.get(label)]=value;
+        }
+
+        @Nonnull
+        @Override
+        public Object get(@Nonnull String label) {
+            return fields[labels.get(label)];
+        }
+
+        @Nonnull
+        @Override
+        public Set<String> labels() {
+            return labels.keySet();
+        }
+    }
 }

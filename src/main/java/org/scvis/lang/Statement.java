@@ -24,12 +24,28 @@
 
 package org.scvis.lang;
 
-import org.scvis.parser.AccessException;
-import org.scvis.parser.EvaluationException;
-import org.scvis.parser.ParsingException;
+import org.scvis.parser.Operator;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-public interface Statement {
-    void execute(@Nonnull Namespace space) throws AccessException, ParsingException, EvaluationException;
+public class Statement {
+    public final @Nonnull List<Operator> operators = new ArrayList<>();
+    public final @Nonnull List<Object> tokens = new ArrayList<>();
+
+    public Statement() {
+
+    }
+
+    public Statement(Collection<Operator> operators, Collection<Object> tokens) {
+        this.operators.addAll(operators);
+        this.tokens.addAll(tokens);
+    }
+
+    public void addOperator(@Nonnull Operator operator) {
+        tokens.add(operator);
+        operators.add(operator);
+    }
 }

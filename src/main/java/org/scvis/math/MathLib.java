@@ -26,9 +26,10 @@ package org.scvis.math;
 
 import org.scvis.ScVis;
 import org.scvis.lang.Callable;
+import org.scvis.lang.Library;
 import org.scvis.lang.Namespace;
 
-public class MathLib extends Namespace {
+public class MathLib extends Library {
 
     /**
      * This constant is currently not available in java 11. You can find <a

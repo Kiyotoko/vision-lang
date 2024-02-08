@@ -24,11 +24,10 @@
 
 package org.scvis.lang;
 
-import org.scvis.parser.AccessException;
-
 import java.util.List;
 
+@FunctionalInterface
 public interface Callable {
-    Object call(List<Object> args) throws AccessException;
+    Object call(List<Object> args);
 
 }

@@ -22,14 +22,18 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import org.scvis.ScVisException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class ParsingException extends ScVisException {
+public class CodeBlock {
+    private final Statement[] statements;
 
-    public ParsingException(String message, int errorCode) {
-        super(message, errorCode);
-        checkForRange(100, 199);
+    public CodeBlock(Iterable<Statement> content, int size) {
+        this.statements = new Statement[size];
     }
+
+
 }

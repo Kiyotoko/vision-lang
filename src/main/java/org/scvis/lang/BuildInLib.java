@@ -26,14 +26,13 @@ package org.scvis.lang;
 
 import org.scvis.ScVis;
 import org.scvis.math.MathLib;
-import org.scvis.parser.AccessException;
 import org.scvis.parser.ImportLoader;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class BuildInLib extends Namespace {
+public class BuildInLib extends Library {
 
     private final ImportLoader loader = new ImportLoader() {
         private final Map<String, Supplier<Namespace>> supplier = Map.of("math", MathLib::new);
@@ -55,16 +54,8 @@ public class BuildInLib extends Namespace {
         }
 
         @Override
-        public Namespace merge(Namespace into, Object src) throws AccessException {
-            String name = Namespace.unresolved(src).source();
-            Namespace namespace = load(name);
-            into.variables.putAll(namespace.variables);
-            return namespace;
-        }
-
-        @Override
-        public Namespace importInto(Namespace into, Object src) throws AccessException {
-            String name = Namespace.unresolved(src).source();
+        public Namespace importInto(Namespace into, Object src) {
+            String name = ScVis.asString(src);
             Namespace namespace = load(name);
             into.set(name, namespace);
             return namespace;
@@ -98,16 +89,15 @@ public class BuildInLib extends Namespace {
                 };
             }
         });
-        set("type", (Callable) args -> resolved(ScVis.getArg(args, 0)).getClass().getSimpleName());
-        set("str", (Callable) args -> resolved(ScVis.getArg(args, 0)).toString());
-        set("int", (Callable) args -> ScVis.asInt(resolved(ScVis.getArg(args, 0))));
-        set("float", (Callable) args -> ScVis.asFloat(resolved(ScVis.getArg(args, 0))));
+        set("type", (Callable) args -> (ScVis.getArg(args, 0)).getClass().getSimpleName());
+        set("str", (Callable) args -> (ScVis.getArg(args, 0)).toString());
+        set("int", (Callable) args -> ScVis.asInt((ScVis.getArg(args, 0))));
+        set("float", (Callable) args -> ScVis.asFloat((ScVis.getArg(args, 0))));
         set("print", (Callable) args -> {
-            for (Object arg : args) System.out.print(resolved(arg) + " ");
+            for (Object arg : args) System.out.print(arg + " ");
             System.out.println();
             return args;
         });
-        set("merge", (Callable) args -> loader.merge(this, ScVis.getArg(args, 0)));
         set("import", (Callable) args -> loader.importInto(this, ScVis.getArg(args, 0)));
     }
 }
