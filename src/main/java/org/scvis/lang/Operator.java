@@ -22,7 +22,34 @@
  * SOFTWARE.
  */
 
-package org.scvis.lang;
+package org.scvis.parser;
 
-public class Function {
+import org.scvis.ScVisException;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import java.util.function.BinaryOperator;
+
+/**
+ * An operator always evaluates two values and returns a new value. Therefore, <char>!</char> is not an operator,
+ * because it only evaluates one value. Each operator can also be a sign. A sign can take <code>0</code> as a left value
+ * if no left value is given. If it can not get a left or right value, a {@link ScVisException} is thrown.
+ *
+ * @author karlz
+ * @see Comparable
+ */
+public interface Operator extends Comparable<Operator>, BinaryOperator<Object> {
+
+    /**
+     * The priority is the sequence, in which the values are evaluated.
+     *
+     * @return the priority
+     */
+    @CheckReturnValue
+    int priority();
+
+    @Override
+    default int compareTo(@Nonnull Operator o) {
+        return o.priority() - priority();
+    }
 }

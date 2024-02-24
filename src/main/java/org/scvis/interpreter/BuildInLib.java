@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
-package org.scvis.lang;
+package org.scvis.parser;
 
-import org.scvis.ScVis;
+import org.scvis.Vision;
+import org.scvis.lang.Label;
+import org.scvis.lang.Library;
+import org.scvis.lang.Method;
+import org.scvis.lang.Namespace;
 import org.scvis.math.MathLib;
-import org.scvis.parser.ImportLoader;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -39,7 +41,7 @@ public class BuildInLib extends Library {
 
         @Override
         public boolean exist(String name) {
-            return supplier.containsKey(name);
+            return libs().contains(name);
         }
 
         @Override
@@ -55,23 +57,23 @@ public class BuildInLib extends Library {
 
         @Override
         public Namespace importInto(Namespace into, Object src) {
-            String name = ScVis.asString(src);
-            Namespace namespace = load(name);
-            into.set(name, namespace);
+            Label label = Vision.asLabel(src);
+            Namespace namespace = load(label.getName());
+            into.set(label.getName(), namespace);
             return namespace;
         }
     };
 
     public BuildInLib() {
-        set("range", (Callable) args -> new Iterable<Long>() {
-            private final long sta = ScVis.asInt(ScVis.getArg(args, 0));
-            private final long ste = ScVis.asInt(ScVis.getArg(args, 1));
-            private final long sto = ScVis.asInt(ScVis.getArg(args, 2));
-            @Nonnull
+        set("range", new Method(this) {
             @Override
-            public Iterator<Long> iterator() {
-                return new Iterator<>() {
+            public Object apply(List<Object> args) {
+                final long sta = Vision.asInt(Vision.getArg(args, 0));
+                final long ste = Vision.asInt(Vision.getArg(args, 1));
+                final long sto = Vision.asInt(Vision.getArg(args, 2));
+                return (Iterable<Long>) () -> new Iterator<>() {
                     long cur = sta;
+
                     @Override
                     public boolean hasNext() {
                         return cur < sto;
@@ -89,15 +91,47 @@ public class BuildInLib extends Library {
                 };
             }
         });
-        set("type", (Callable) args -> (ScVis.getArg(args, 0)).getClass().getSimpleName());
-        set("str", (Callable) args -> (ScVis.getArg(args, 0)).toString());
-        set("int", (Callable) args -> ScVis.asInt((ScVis.getArg(args, 0))));
-        set("float", (Callable) args -> ScVis.asFloat((ScVis.getArg(args, 0))));
-        set("print", (Callable) args -> {
-            for (Object arg : args) System.out.print(arg + " ");
-            System.out.println();
-            return args;
+        set("type", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                return Vision.getArg(args, 0).getClass().getSimpleName();
+            }
         });
-        set("import", (Callable) args -> loader.importInto(this, ScVis.getArg(args, 0)));
+        set("str", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                return Vision.getArg(args, 0).toString();
+            }
+        });
+        set("int", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                Object arg = Vision.getArg(args, 0);
+                if (arg instanceof String) return Integer.parseInt(arg.toString());
+                return Vision.asInt(arg);
+            }
+        });
+        set("float", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                Object arg = Vision.getArg(args, 0);
+                if (arg instanceof String) return Double.parseDouble(arg.toString());
+                return Vision.asFloat(arg);
+            }
+        });
+        set("print", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                for (Object arg : args) System.out.print(arg + " ");
+                System.out.println();
+                return args;
+            }
+        });
+        set("import", new Method(this) {
+            @Override
+            public Object apply(List<Object> args) {
+                return loader.importInto(BuildInLib.this, Vision.getArg(args, 0));
+            }
+        });
     }
 }

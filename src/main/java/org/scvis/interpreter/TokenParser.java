@@ -24,10 +24,8 @@
 
 package org.scvis.parser;
 
-import org.scvis.ScVisException;
-import org.scvis.lang.Callable;
-import org.scvis.lang.Namespace;
-import org.scvis.lang.Statement;
+import org.scvis.VisionException;
+import org.scvis.lang.*;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -42,14 +40,15 @@ import java.util.List;
 public class TokenParser {
 
     private final @Nonnull Namespace namespace;
+    private final @Nonnull Statement statement;
 
-    private final Statement statement = new Statement();
     private char[] chars;
     private int pos;
     private char bracket = 0x0;
 
     public TokenParser(@Nonnull Namespace namespace) {
         this.namespace = namespace;
+        this.statement = new Statement();
     }
 
     /**
@@ -57,8 +56,8 @@ public class TokenParser {
      *
      * @param string the string to evaluate
      */
-    public void tokenize(@Nonnull String string) {
-        tokenize(string.toCharArray(), 0);
+    public void parse(@Nonnull String string) {
+        parse(string.toCharArray(), 0);
     }
 
     /**
@@ -72,7 +71,7 @@ public class TokenParser {
      * @param chars the char array
      * @param start the start index
      */
-    public void tokenize(@Nonnull char[] chars, int start) {
+    public void parse(@Nonnull char[] chars, int start) {
         this.chars = chars;
         this.pos = start;
 
@@ -105,7 +104,6 @@ public class TokenParser {
     }
 
     public void parseValue() {
-        debug();
         char current = chars[pos];
         if (Character.isDigit(current) || current == '.')
             statement.tokens.add(getNextNumber());
@@ -123,18 +121,15 @@ public class TokenParser {
         Label label = getNextLabel();
 
         skipWhiteSpaces();
-        debug();
         if (hasCharsLeft() && chars[pos] == '(') {
-            System.out.println("Func");
             parseFunction(label);
         } else {
-            System.out.println("Var");
-            if (statement.tokens.isEmpty()) {
-                statement.tokens.add(label.getResource());
-            } else {
+            if (statement.tokens.isEmpty() && bracket == 0x0) {
                 statement.tokens.add(label);
+            } else {
+                statement.tokens.add(label.getResource());
                 skipWhiteSpaces();
-                parsePair();
+                if (hasCharsLeft() && hasNotClosed()) parsePair();
             }
         }
     }
@@ -171,9 +166,9 @@ public class TokenParser {
                     statement.addOperator(Operators.NOT_EQUALS);
                     break;
                 }
-                throw new ScVisException("Operator requires postfix", 123);
+                throw new VisionException("Operator requires postfix", 123);
             default:
-                throw new ScVisException("Char '" + current + "' is not an operator", 110);
+                throw new VisionException("Char '" + current + "' is not an operator", 110);
         }
     }
 
@@ -181,9 +176,9 @@ public class TokenParser {
         TokenParser parser = getNextSubTokens();
         Object function = label.getResource();
         if (function instanceof Callable) {
-            statement.tokens.add(((Callable) function).call(new TokenEvaluator(namespace, parser.statement).evaluate()));
+            statement.tokens.add(((Callable) function).apply(new TokenEvaluator(namespace, parser.statement).evaluate()));
         } else {
-            throw new ScVisException("Label '" + label.getName() + "' is not callable", 180);
+            throw new VisionException("Label '" + label.getName() + "' is not callable", 180);
         }
     }
 
@@ -198,7 +193,7 @@ public class TokenParser {
                 build = build * 10 + Character.digit(c, 10);
             } else if (c == '.') {
                 if (real > -1)
-                    throw new ScVisException("Numbers can not have two dots", 190);
+                    throw new VisionException("Numbers can not have two dots", 190);
                 real = pos;
             } else {
                 pos--;
@@ -245,7 +240,7 @@ public class TokenParser {
             else if (c == '.') {
                 var next = working.get(build.toString());
                 if (next instanceof Namespace) working = (Namespace) next;
-                else throw new ScVisException("Pointer is not a namespace", 328);
+                else throw new VisionException("Pointer is not a namespace", 328);
                 build = new StringBuilder();
             }
             else {
@@ -260,7 +255,7 @@ public class TokenParser {
         TokenParser parser = new TokenParser(namespace);
         char opened = chars[pos];
         parser.bracket = opened == '(' ? ')' : (char) (opened + 2);
-        parser.tokenize(chars, ++pos);
+        parser.parse(chars, ++pos);
         pos = parser.pos + 1;
         return parser;
     }
@@ -268,7 +263,7 @@ public class TokenParser {
     @CheckReturnValue
     private boolean hasNextEquals() {
         if (!hasCharsLeft())
-            throw new ScVisException("No other chars left", 199);
+            throw new VisionException("No other chars left", 199);
         return chars[pos] == '=';
     }
 
@@ -277,20 +272,17 @@ public class TokenParser {
         return pos < chars.length;
     }
 
+    @CheckReturnValue
     private boolean hasNotClosed() {
         return chars[pos] != ')' && chars[pos] != ']';
     }
 
     @SuppressWarnings("unused")
     private void checkClosedBracket() {
-        if (bracket == 0x0) throw new ScVisException("Bracket is null, maybe you want to remove a closing bracket?", 194);
+        if (bracket == 0x0) throw new VisionException("Bracket is null, maybe you want to remove a closing bracket?", 194);
         if (chars[pos] != bracket) {
-            throw new ScVisException("Closed Bracket '" + chars[pos] + "' does not match opened bracket '" + bracket + "'!", 197);
+            throw new VisionException("Closed Bracket '" + chars[pos] + "' does not match opened bracket '" + bracket + "'!", 197);
         }
-    }
-
-    private void debug() {
-        System.err.println("Pos and Char: " + pos + ", " + (hasCharsLeft() ? chars[pos] : "::eol::"));
     }
 
     @CheckReturnValue

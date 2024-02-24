@@ -22,20 +22,17 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import java.util.List;
 
-import java.io.File;
-import java.util.Objects;
+public class Function implements Callable {
+    public Function() {
 
-class TestFileParser {
-    @Test
-    void test() {
-        Assertions.assertDoesNotThrow(() ->
-            new FileInterpreter(new File(Objects.requireNonNull(getClass().getResource("test.vision")).getFile()))
-        );
     }
 
+    @Override
+    public Object call(List<Object> args) {
+        return null;
+    }
 }

@@ -2,7 +2,6 @@ package org.scvis.parser;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.scvis.lang.BuildInLib;
 import org.scvis.lang.Statement;
 
 import java.util.List;

@@ -24,7 +24,9 @@
 
 package org.scvis.parser;
 
-import org.scvis.ScVis;
+import org.scvis.Vision;
+import org.scvis.lang.Label;
+import org.scvis.lang.Operator;
 
 import javax.annotation.Nonnull;
 
@@ -44,14 +46,14 @@ public final class Operators {
         public static final @Nonnull Operator ADD = new Sign() {
             @Override
             public Object apply(Object left, Object right) {
-                return ScVis.asFloat(left) + ScVis.asFloat(right);
+                return Vision.asFloat(left) + Vision.asFloat(right);
             }
         };
 
         public static final @Nonnull Operator SUB = new Sign() {
             @Override
             public Object apply(Object left, Object right) {
-                return ScVis.asFloat(left) - ScVis.asFloat(right);
+                return Vision.asFloat(left) - Vision.asFloat(right);
             }
         };
     }
@@ -64,7 +66,12 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            return ScVis.asFloat(left) * ScVis.asFloat(right);
+            return Vision.asFloat(left) * Vision.asFloat(right);
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "+=";
         }
     };
 
@@ -76,7 +83,12 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            return ScVis.asFloat(left) / ScVis.asFloat(right);
+            return Vision.asFloat(left) / Vision.asFloat(right);
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "/";
         }
     };
 
@@ -88,7 +100,12 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            return ScVis.asFloat(left) % ScVis.asFloat(right);
+            return Vision.asFloat(left) % Vision.asFloat(right);
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "%";
         }
     };
 
@@ -100,7 +117,12 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            return Math.pow(ScVis.asFloat(left), ScVis.asFloat(right));
+            return Math.pow(Vision.asFloat(left), Vision.asFloat(right));
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "^";
         }
     };
 
@@ -115,6 +137,11 @@ public final class Operators {
         public int priority() {
             return -10;
         }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + ";";
+        }
     };
 
     public static final @Nonnull Operator DECLARE = new Operator() {
@@ -125,7 +152,12 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            return ScVis.asLabel(left).setResource(right);
+            return Vision.asLabel(left).setResource(right);
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "=";
         }
     };
 
@@ -137,8 +169,13 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            Label label = ScVis.asLabel(left);
-            return label.setResource(ScVis.asFloat(label.getResource()) + ScVis.asFloat(right));
+            Label label = Vision.asLabel(left);
+            return label.setResource(Vision.asFloat(label.getResource()) + Vision.asFloat(right));
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "+=";
         }
     };
 
@@ -150,8 +187,13 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            Label label = ScVis.asLabel(left);
-            return label.setResource(ScVis.asFloat(label.getResource()) + ScVis.asFloat(right));
+            Label label = Vision.asLabel(left);
+            return label.setResource(Vision.asFloat(label.getResource()) + Vision.asFloat(right));
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "-=";
         }
     };
 
@@ -163,8 +205,13 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            Label label = ScVis.asLabel(left);
-            return label.setResource(ScVis.asFloat(label.getResource()) + ScVis.asFloat(right));
+            Label label = Vision.asLabel(left);
+            return label.setResource(Vision.asFloat(label.getResource()) + Vision.asFloat(right));
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "*=";
         }
     };
 
@@ -176,8 +223,13 @@ public final class Operators {
 
         @Override
         public Object apply(Object left, Object right) {
-            Label label = ScVis.asLabel(left);
-            return label.setResource(ScVis.asFloat(label.getResource()) + ScVis.asFloat(right));
+            Label label = Vision.asLabel(left);
+            return label.setResource(Vision.asFloat(label.getResource()) + Vision.asFloat(right));
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "/=";
         }
     };
 
@@ -192,6 +244,11 @@ public final class Operators {
         public Object apply(Object left, Object right) {
             return left.equals(right);
         }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "==";
+        }
     };
 
     public static final @Nonnull Operator NOT_EQUALS = new Operator() {
@@ -203,6 +260,11 @@ public final class Operators {
         @Override
         public Object apply(Object left, Object right) {
             return !left.equals(right);
+        }
+
+        @Override
+        public String toString() {
+            return "O" + priority() + "!=";
         }
     };
 

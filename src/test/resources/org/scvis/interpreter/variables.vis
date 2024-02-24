@@ -1,0 +1,14 @@
+a = 3
+b = 4
+c = 5
+
+print(a, b, c)
+
+a2 = a^2
+b2 = b^2
+c2 = c^2
+
+sum = a2 + b2
+
+print(a2, b2, c2)
+print(sum, c2)

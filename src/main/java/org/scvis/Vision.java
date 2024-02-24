@@ -24,6 +24,7 @@
 
 package org.scvis;
 
+import org.scvis.lang.Label;
 import org.scvis.lang.Namespace;
 import org.scvis.parser.*;
 
@@ -41,7 +42,7 @@ public class ScVis {
     @Nonnull
     public static List<Object> interpret(@Nonnull Namespace namespace, @Nonnull String line) {
         TokenParser parser = new TokenParser(namespace);
-        parser.tokenize(line);
+        parser.parse(line);
         return new TokenEvaluator(namespace, parser.getStatement()).evaluate();
     }
 
@@ -51,36 +52,36 @@ public class ScVis {
         return new ClassCastException("Argument '" + arg + "' could not be cast to " + type);
     }
 
-    public static Number asNumber(Object arg){
+    public static Number asNumber(@Nonnull Object arg){
         if (arg instanceof Number) return (Number) arg;
         throw cce(arg, "number");
     }
 
-    public static Long asInt(Object arg) {
+    public static Long asInt(@Nonnull Object arg) {
         return asNumber(arg).longValue();
     }
 
-    public static Double asFloat(Object arg) {
+    public static Double asFloat(@Nonnull Object arg) {
         return asNumber(arg).doubleValue();
     }
 
-    public static String asString(Object arg) {
+    public static String asString(@Nonnull Object arg) {
         if (arg instanceof String) return (String) arg;
         throw cce(arg, "string");
     }
 
-    public static Label asLabel(Object arg) {
+    public static Label asLabel(@Nonnull Object arg) {
         if (arg instanceof Label) return (Label) arg;
         throw cce(arg, "label");
     }
 
     @SuppressWarnings("unused")
-    public static Iterable<?> asIterable(Object arg) {
+    public static Iterable<?> asIterable(@Nonnull Object arg) {
         if (arg instanceof Iterable) return (Iterable<?>) arg;
         throw cce(arg,"iterable");
     }
 
-    public static Object getArg(List<Object> args, int index) {
+    public static Object getArg(@Nonnull List<Object> args, int index) {
         if (index < 0 || index >= args.size()) throw new IndexOutOfBoundsException("Argument outside range");
         return args.get(index);
     }
