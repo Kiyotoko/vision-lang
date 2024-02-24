@@ -24,8 +24,6 @@
 
 package org.scvis.lang;
 
-import org.scvis.parser.Operator;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;

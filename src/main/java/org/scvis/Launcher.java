@@ -24,12 +24,15 @@
 
 package org.scvis;
 
+import org.scvis.interpreter.InteractiveInterpreter;
+
 import java.io.IOException;
 
 public class Launcher {
 
     public static void main(String[] args) throws IOException {
-        Calculator calculator = new Calculator();
-        calculator.runAndServe();
+        try (InteractiveInterpreter interpreter = new InteractiveInterpreter()) {
+            interpreter.interpretAll();
+        }
     }
 }

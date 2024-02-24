@@ -24,10 +24,10 @@
 
 package org.scvis;
 
-public class ScVisException extends RuntimeException {
+public class VisionException extends RuntimeException {
     private final int errorCode;
 
-    public ScVisException(String message, int errorCode) {
+    public VisionException(String message, int errorCode) {
         super(message);
         this.errorCode = errorCode;
     }

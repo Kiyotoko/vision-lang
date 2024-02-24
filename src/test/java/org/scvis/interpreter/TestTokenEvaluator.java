@@ -1,4 +1,4 @@
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

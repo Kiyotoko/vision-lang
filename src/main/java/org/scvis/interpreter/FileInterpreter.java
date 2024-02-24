@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.scvis.lang.Namespace;
 
@@ -54,7 +54,7 @@ public class FileInterpreter implements AutoCloseable {
 
     protected int lineNumber = 0;
 
-    public void interpretOne() throws IOException {
+    public void interpretNext() throws IOException {
         String line = reader.readLine();
         if (line != null) {
             lineNumber++;

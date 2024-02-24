@@ -24,15 +24,17 @@
 
 package org.scvis.lang;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
-public class Function implements Callable {
-    public Function() {
+public abstract class Method implements Callable {
+    private final @Nonnull Namespace namespace;
 
+    protected Method(@Nonnull Namespace namespace) {
+        this.namespace = namespace;
     }
 
-    @Override
-    public Object call(List<Object> args) {
-        return null;
+    @Nonnull
+    public Namespace getNamespace() {
+        return namespace;
     }
 }

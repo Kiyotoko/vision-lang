@@ -1,4 +1,4 @@
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.scvis.VisionException;
 import org.scvis.lang.Namespace;

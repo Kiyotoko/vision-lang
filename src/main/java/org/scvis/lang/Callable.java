@@ -25,9 +25,9 @@
 package org.scvis.lang;
 
 import java.util.List;
+import java.util.function.Function;
 
 @FunctionalInterface
-public interface Callable {
-    Object call(List<Object> args);
+public interface Callable extends Function<List<Object>, Object> {
 
 }

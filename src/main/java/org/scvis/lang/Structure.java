@@ -24,6 +24,7 @@
 
 package org.scvis.lang;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
@@ -31,21 +32,27 @@ import java.util.Set;
 
 public class Structure {
 
-    Map<String, Integer> labels;
+    private final Map<String, Integer> labels;
 
-    class Constructor implements Callable {
+    @CheckReturnValue
+    public Structure(Map<String, Integer> labels) {
+        this.labels = labels;
+    }
+
+    public class Constructor implements Callable {
 
         @Override
-        public Creation call(List<java.lang.Object> args) {
+        public Creation apply(List<java.lang.Object> args) {
             if (args.size() != labels.size())
                 throw new IllegalArgumentException("False number of arguments for constructor");
             return new Creation(args);
         }
     }
 
-    class Creation implements Namespace {
+    public class Creation implements Namespace {
         private final Object[] fields = new Object[labels.size()];
 
+        @CheckReturnValue
         Creation(Iterable<Object> data) {
             int i = 0;
             for (var v : data) {
@@ -69,5 +76,11 @@ public class Structure {
         public Set<String> labels() {
             return labels.keySet();
         }
+    }
+
+    @CheckReturnValue
+    @Nonnull
+    public Constructor toConstructor() {
+        return new Constructor();
     }
 }

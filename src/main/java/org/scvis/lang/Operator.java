@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.lang;
 
-import org.scvis.ScVisException;
+import org.scvis.VisionException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ import java.util.function.BinaryOperator;
 /**
  * An operator always evaluates two values and returns a new value. Therefore, <char>!</char> is not an operator,
  * because it only evaluates one value. Each operator can also be a sign. A sign can take <code>0</code> as a left value
- * if no left value is given. If it can not get a left or right value, a {@link ScVisException} is thrown.
+ * if no left value is given. If it can not get a left or right value, a {@link VisionException} is thrown.
  *
  * @author karlz
  * @see Comparable

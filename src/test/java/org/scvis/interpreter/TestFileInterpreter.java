@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -62,11 +62,11 @@ class TestFileInterpreter {
     }
 
     @Test
-    void interpretOne() {
+    void interpretNext() {
         Assertions.assertDoesNotThrow(() -> {
             FileInterpreter interpreter = new FileInterpreter(new File(Objects.requireNonNull(
                     getClass().getResource("basics.vis")).getFile()));
-            interpreter.interpretOne();
+            interpreter.interpretNext();
             interpreter.close();
         });
     }
@@ -76,7 +76,7 @@ class TestFileInterpreter {
         FileInterpreter interpreter = new FileInterpreter(new File(Objects.requireNonNull(
                 getClass().getResource("basics.vis")).getFile()));
         interpreter.interpretAll();
-        Assertions.assertThrows(IOException.class, interpreter::interpretOne);
+        Assertions.assertThrows(IOException.class, interpreter::interpretNext);
         interpreter.close();
     }
 

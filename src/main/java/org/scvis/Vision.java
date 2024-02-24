@@ -26,15 +26,15 @@ package org.scvis;
 
 import org.scvis.lang.Label;
 import org.scvis.lang.Namespace;
-import org.scvis.parser.*;
+import org.scvis.interpreter.*;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ScVis {
+public class Vision {
 
-    private ScVis() {
+    private Vision() {
         throw new UnsupportedOperationException();
     }
 

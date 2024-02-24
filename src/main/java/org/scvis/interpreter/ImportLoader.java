@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.scvis.lang.Namespace;
 

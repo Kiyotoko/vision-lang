@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.scvis.Vision;
 import org.scvis.VisionException;
-import org.scvis.parser.BuildInLib;
 import org.scvis.lang.Namespace;
 
 import javax.annotation.Nonnull;
@@ -35,44 +34,61 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class InteractiveInterpreter {
+public class InteractiveInterpreter implements AutoCloseable {
 
     private final @Nonnull Namespace nameSpace = new BuildInLib();
 
-    private final @Nonnull InputStream input;
-
+    private final @Nonnull Scanner scanner;
     private final @Nonnull OutputStream output;
 
+    private boolean closed = false;
+
     public InteractiveInterpreter(@Nonnull InputStream input, @Nonnull OutputStream output) {
-        this.input = input;
         this.output = output;
+        this.scanner = new Scanner(input);
     }
 
     public InteractiveInterpreter() {
         this(System.in, System.out);
     }
 
-    public void runAndServe() throws IOException {
-        try (Scanner scanner = new Scanner(input)) {
-            while (true) {
-                output.write(">>> ".getBytes());
-                String line = scanner.nextLine();
-                if (Objects.equals(line, "exit")) break;
-                try {
-                    Iterator<Object> iterator = Vision.interpret(nameSpace, line).listIterator();
-                    if (!iterator.hasNext()) continue;
-                    StringBuilder builder = new StringBuilder();
-                    while (iterator.hasNext()) {
-                        builder.append(iterator.next());
-                        if (iterator.hasNext()) builder.append("; ");
-                    }
-                    builder.append("\n");
-                    output.write(builder.toString().getBytes());
-                } catch (VisionException e) {
-                    String msg = e.getClass().getSimpleName() + " [" + e.getErrorCode() + "]: " + e.getMessage() + "\n";
-                    output.write(msg.getBytes());
-                }
-            }
+    public void interpretAll() throws IOException {
+        while (!closed) {
+            interpretNext();
         }
+    }
+
+    public void interpretNext() throws IOException {
+        output.write(">>> ".getBytes());
+        String line = scanner.nextLine();
+        if (Objects.equals(line, "exit")) closed = true;
+        try {
+            printResults(Vision.interpret(nameSpace, line));
+        } catch (VisionException exception) {
+            printException(exception);
+        }
+    }
+
+    public void printException(VisionException exception) throws IOException {
+        String msg = exception.getClass().getSimpleName() + " [" + exception.getErrorCode() + "]: " + exception.getMessage() + "\n";
+        if (exception.getCause() != null) msg += exception.getCause().getClass().getSimpleName() + ": " + exception.getCause().getMessage() + "\n";
+        output.write(msg.getBytes());
+    }
+
+    public void printResults(Iterable<Object> results) throws IOException {
+        Iterator<Object> iterator = results.iterator();
+        if (!iterator.hasNext()) return;
+        StringBuilder builder = new StringBuilder();
+        while (iterator.hasNext()) {
+            builder.append(iterator.next());
+            if (iterator.hasNext()) builder.append("; ");
+        }
+        builder.append("\n");
+        output.write(builder.toString().getBytes());
+    }
+
+    @Override
+    public void close() {
+        scanner.close();
     }
 }

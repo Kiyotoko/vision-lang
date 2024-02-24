@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.scvis.parser;
+package org.scvis.interpreter;
 
 import org.scvis.Vision;
 import org.scvis.lang.Label;
