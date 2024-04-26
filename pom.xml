@@ -2,19 +2,40 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.scvis</groupId>
-	<artifactId>scvis</artifactId>
+	<groupId>org.vision</groupId>
+	<artifactId>vision-lang</artifactId>
 	<version>0.1.0</version>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.javaVersion>11</project.javaVersion>
-		<project.mainClass>org.scvis.Launcher</project.mainClass>
 		<maven.compiler.source>${project.javaVersion}</maven.compiler.source>
 		<maven.compiler.target>${project.javaVersion}</maven.compiler.target>
 		<maven.compiler.release>${project.javaVersion}</maven.compiler.release>
-        <kotlin.version>2.0.0-Beta2</kotlin.version>
+		<antlr.version>4.9.3</antlr.version>
     </properties>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Kiyotoko Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/Kiyotoko/vision-lang</url>
+		</repository>
+	</distributionManagement>
+
 	<dependencies>
+		<!-- ANTLR -->
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>${antlr.version}</version>
+		</dependency>
+		<!-- ASM -->
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>9.7</version>
+		</dependency>
 		<!-- Annotations -->
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
@@ -35,47 +56,32 @@
 			<scope>test</scope>
 		</dependency>
     </dependencies>
+
 	<build>
+		<!-- ANTLR -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.antlr</groupId>
+					<artifactId>antlr4-maven-plugin</artifactId>
+					<version>${antlr.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.3.1</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.6.1</version>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>${antlr.version}</version>
 				<executions>
 					<execution>
-						<phase>prepare-package</phase>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>antlr4</goal>
 						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.1</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>${project.mainClass}</mainClass>
-							<packageName>scvis</packageName>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-        </plugins>
+    </plugins>
 	</build>
 </project>
