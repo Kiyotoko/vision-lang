@@ -5,5 +5,8 @@
 ## Setup
 
 ```sh
+cd parser
+chmod 777 ./generate.sh
+cd ..
 go generate ./...
 ```
