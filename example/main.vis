@@ -1,0 +1,29 @@
+mod math
+
+class Vector {
+    x: float
+    y: float
+
+    fn add(other: Vector) -> Vector {
+        return Vector((x + other.x), (y + other.y))
+    }
+
+    fn sub(other: Vector) -> Vector {
+        return Vector((x - other.x), (y - other.y))
+    }
+}
+
+interface Add {
+    fn add(other: Any)
+}
+
+interface Sub {
+    fn sub(other: Any)
+}
+
+fn main() {
+    var a = Vector(1, 2)
+    var b = Vector(4, 2)
+
+    println(a.add(b))
+}

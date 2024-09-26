@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/antlr4-go/antlr/v4"
-	"github.com/vision-lang/parsing"
-	"os"
 	"fmt"
+	"github.com/antlr4-go/antlr/v4"
+	"github.com/vision-lang/parser"
+	"os"
 )
 
 type TreeShapeListener struct {
-	*parsing.BaseVisionListener
+	*parser.BaseVisionListener
 }
 
 func NewTreeShapeListener() *TreeShapeListener {
@@ -21,9 +21,9 @@ func (this *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 
 func main() {
 	input, _ := antlr.NewFileStream(os.Args[1])
-	lexer := parsing.NewVisionLexer(input)
-	stream := antlr.NewCommonTokenStream(lexer,0)
-	p := parsing.NewVisionParser(stream)
+	lexer := parser.NewVisionLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
+	p := parser.NewVisionParser(stream)
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	tree := p.Root()
 	antlr.ParseTreeWalkerDefault.Walk(NewTreeShapeListener(), tree)

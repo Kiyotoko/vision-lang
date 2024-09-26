@@ -1,27 +1,28 @@
 grammar Vision;
 
-root: moduleDeclaration (useDeclaration)* (structDeclaration | funcDeclaration)* EOF;
+root: moduleDeclaration (useDeclaration)* (classDeclaration | interfaceDeclaration | funcDeclaration)* EOF;
 
 // Module, import and packages
 moduleDeclaration: KEY_MOD packageName ;
 useDeclaration: KEY_USE packageName ;
-packageName: NAME('.'NAME)*;
+packageName: instance;
 
 // Strutures
-structDeclaration: KEY_STRUCT NAME '{' structBody '}' ;
-structBody: ( argDeclaration )* ;
+classDeclaration: KEY_CLASS PASCAL_CASE '{' classBody '}' ;
+classBody: ( argDeclaration )* ( funcDeclaration )* ;
+
+interfaceDeclaration: KEY_INTERFACE PASCAL_CASE '{' interfaceBody '}' ;
+interfaceBody: funcHeader* ;
 
 // Functions
-funcDeclaration: KEY_FUNC NAME '(' funcParameters ')' '{' body '}'
-               | KEY_FUNC NAME '(' funcParameters ')' funcReturntype '{' body '}';
+funcDeclaration: funcHeader '{' body '}';
+funcHeader: KEY_FUNC SNAKE_CASE '(' funcParameters ')' funcReturntype?;
 funcParameters: (argDeclaration (',' argDeclaration)*)? ;
 funcReturntype: RETURN type;
-funcCall: NAME '(' funcArgs ')' ;
-funcArgs: (value (',' value)*)?;
 
 // Body and statements
 body: (statement)* (returnStatement|breakStatement)? ;
-statement: varDeclaration | funcCall | ifDeclaration | whileDeclaration | forDeclaration;
+statement: varDeclaration | ifDeclaration | whileDeclaration | forDeclaration | callValue;
 returnStatement: KEY_RETURN value?;
 breakStatement: KEY_BREAK;
 
@@ -31,15 +32,24 @@ ifDeclaration: KEY_IF boolValue '{' body '}' (KEY_ELIF boolValue '{' body '}')* 
 // Loops
 whileDeclaration: KEY_WHILE boolValue '{' body '}' ;
 forDeclaration: KEY_FOR iterDeclaration '{' body '}' ;
-iterDeclaration: NAME IN iterValue ;
+iterDeclaration: instance IN iterValue ;
 
 // Variables and arguments
-varDeclaration: argDeclaration EQUALS value ;
-argDeclaration: NAME ':' type ;
+instance: SNAKE_CASE ('.' SNAKE_CASE)*;
+varDeclaration: KEY_VAR SNAKE_CASE EQUALS value ;
+argDeclaration: SNAKE_CASE ':' type ;
 
 // Values
-value: boolValue | numValue | stringValue | iterValue | newValue | accessValue;
-varValue: NAME | funcCall | accessValue;
+value: varValue
+    | callValue
+    | boolValue
+    | numValue
+    | stringValue
+    | iterValue;
+varValue: instance;
+callValue: instance '(' callArgs? ')'
+        | PASCAL_CASE '(' callArgs? ')';
+callArgs: value (',' value)*;
 boolValue: BOOL | varValue | '(' boolEvaluation ')' | numToBoolEvaluation;
 boolEvaluation: OP_NOT? boolValue boolOperator boolValue;
 numToBoolEvaluation: numValue numToBoolOpertor numValue;
@@ -48,26 +58,16 @@ numEvaluation: numValue numOperator numValue;
 iterValue: varValue | rangeEvaluation;
 rangeEvaluation: numValue TO numValue;
 stringValue: STRING | varValue;
-newValue: NAME '{' newParameters '}';
-newParameters: (newArgument (',' newArgument)*)?;
-newArgument: NAME EQUALS value ;
-accessValue: NAME('.'NAME)+;
 
 // Types
-type: NAME | nativeType;
+type: PASCAL_CASE | nativeType;
 nativeType: numberType | TYPE_BOOL | TYPE_CHAR | TYPE_STRING;
-numberType: integerType | floatType;
-integerType: TYPE_INT8 | TYPE_INT16 | TYPE_INT32 | TYPE_INT64;
-floatType: TYPE_FLOAT | TYPE_DOUBLE;
+numberType: TYPE_INT | TYPE_FLOAT;
 TYPE_BOOL: 'bool';
 TYPE_CHAR: 'char';
 TYPE_STRING: 'str';
-TYPE_INT8: 'i8';
-TYPE_INT16: 'i16';
-TYPE_INT32: 'i32';
-TYPE_INT64: 'i64';
+TYPE_INT: 'int';
 TYPE_FLOAT: 'float';
-TYPE_DOUBLE: 'double';
 
 // Bool Operators
 boolOperator: OP_AND | OP_EQU | OP_NEQ | OP_OR | OP_XOR;
@@ -95,7 +95,8 @@ OP_MOD: '%';
 // Keywords
 KEY_VAR: 'var';
 KEY_FUNC: 'fn';
-KEY_STRUCT: 'struct';
+KEY_CLASS: 'class';
+KEY_INTERFACE: 'interface';
 KEY_IF: 'if';
 KEY_ELIF: 'elif';
 KEY_ELSE: 'else';
@@ -106,14 +107,26 @@ KEY_RETURN: 'return';
 KEY_MOD: 'mod';
 KEY_USE: 'use';
 
-NAME: [_]*[a-zA-Z][a-zA-Z0-9_]*;
+// Key symbols
 EQUALS: '=';
 RETURN: '->';
 IN: ':';
 TO: '..';
+
+// Names
+SNAKE_CASE: [_]*[a-z][a-z_]*; // Used for functions, variables, modules and packages
+PASCAL_CASE: [A-Z][a-zA-Z]*; // Used for class names
+UPPER_CASE: [A-Z][A-Z_]*; // Used for consance
+
+// Numbers
 SIGN: '+'|'-';
 INTEGER: SIGN?[0-9]+;
 FLOAT: SIGN?[0-9]+'.'[0-9]+;
+
+// Strings
 STRING: '"'().*?'"';
+
+// Booleans
 BOOL: 'true' | 'false';
+
 WS: [ \t\n\r]+ -> skip;

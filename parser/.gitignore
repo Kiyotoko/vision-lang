@@ -1,0 +1,3 @@
+*.tokens
+*.interp
+vision_*.go
