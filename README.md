@@ -10,3 +10,10 @@ chmod 777 ./generate.sh
 cd ..
 go generate ./...
 ```
+
+## Build and run
+
+```sh
+go build
+./vision-lang example/main.vis
+```
